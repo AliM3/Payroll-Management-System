@@ -1,0 +1,1512 @@
+<?xml version="1.0" encoding="UTF-8"?><TestSessionContainer xmlns="http://www.codecover.org/xml/testsession-container" Date="1587667990426" TestSessionContainerId="870735f2-8f5e-4dee-8e7d-b368bde30465" version="1.0">
+<SrcFileList>
+<SrcFile Content="package controller;&#13;&#10;&#13;&#10;import static org.junit.Assert.*;&#13;&#10;import static org.mockito.Mockito.*;&#13;&#10;&#13;&#10;import org.mockito.ArgumentCaptor;&#13;&#10;import org.mockito.Mock;&#13;&#10;import org.mockito.Mockito;&#13;&#10;import org.mockito.MockitoAnnotations;&#13;&#10;&#13;&#10;import org.powermock.api.mockito.PowerMockito;&#13;&#10;import org.powermock.modules.junit4.PowerMockRunner;&#13;&#10;import org.powermock.core.classloader.annotations.PrepareForTest;&#13;&#10;&#13;&#10;import org.junit.Test;&#13;&#10;import org.junit.After;&#13;&#10;import org.junit.Before;&#13;&#10;import org.junit.runner.RunWith;&#13;&#10;&#13;&#10;import javax.naming.spi.DirStateFactory.Result;&#13;&#10;import javax.servlet.*;&#13;&#10;import javax.servlet.http.*;&#13;&#10;&#13;&#10;import java.io.IOException;&#13;&#10;import java.io.PrintWriter;&#13;&#10;import java.util.ArrayList;&#13;&#10;import java.util.HashMap;&#13;&#10;&#13;&#10;import model.Employee;&#13;&#10;&#13;&#10;@RunWith(PowerMockRunner.class)&#13;&#10;@PrepareForTest({controller.Registration.class, model.Employee.class})&#13;&#10;&#13;&#10;public class RegistrationTest {&#9;&#13;&#10;&#9;HttpSession session = Mockito.mock(HttpSession.class);&#13;&#10;&#9;HttpServletRequest request = Mockito.mock(HttpServletRequest.class);&#13;&#10;&#9;HttpServletResponse response = Mockito.mock(HttpServletResponse.class);&#13;&#10;&#9;&#13;&#10;&#9;//Object of the class under test&#13;&#10;&#9;Registration registration = new Registration();&#13;&#10;&#9;&#13;&#10;&#9;//Mock and spy on the calls for the Employee class used in Registration&#13;&#10;&#9;Employee employeeMock = mock(Employee.class);&#13;&#10;&#9;Employee employeeSpy = spy(Employee.class);&#13;&#10;&#9;&#13;&#10;&#9;PrintWriter writer = Mockito.mock(PrintWriter.class);&#13;&#10;&#9;&#13;&#10;&#9;//Used to get the string Registration will use in Redirect and PrintWriter&#13;&#10;&#9;ArgumentCaptor&lt;String&gt; captor;&#13;&#10;&#9;&#13;&#10;&#9;//Value the PrintWriter should receive in Registration&#13;&#10;&#9;String successfulRegistration = &quot;&lt;script language='javascript'&gt;window.&quot;&#13;&#10;&#9;&#9;&#9;+ &quot;alert('Employee Detials Addded.');window.location=&quot;&#13;&#10;&#9;&#9;&#9;+ &quot;'emplrhome.jsp';&lt;/script&gt;&quot;;&#13;&#10;&#9;&#13;&#10;&#9;//Redirect link Registration should be using&#13;&#10;&#9;String failedRegistration = &#13;&#10;&#9;&#9;&#9;&quot;error.jsp?msg=Employee Registration Failed&quot;;&#13;&#10;&#9;&#13;&#10;&#9;//All values are set valid by default&#13;&#10;&#9;String eid = &quot;100&quot;;&#13;&#10;&#9;String fname = &quot;Clark&quot;;&#13;&#10;&#9;String lname = &quot;Kent&quot;;&#13;&#10;&#9;String gen = &quot;male&quot;;&#13;&#10;&#9;String dob = &quot;1938-04-18&quot;;&#13;&#10;&#9;String job = &quot;Hero&quot;;&#13;&#10;&#9;String contact = &quot;911&quot;;&#13;&#10;&#9;String email = &quot;super.man@email.com&quot;;&#13;&#10;&#9;String addr = &quot;W 56th ST&quot;;&#13;&#10;&#9;String accno = &quot;100&quot;;&#13;&#10;&#9;String bname = &quot;Bank of America&quot;;&#13;&#10;&#9;&#13;&#10;&#9;@Before&#13;&#10;&#9;public void setUp() throws Exception {&#13;&#10;&#9;&#9;when(request.getSession(true)).thenReturn(session);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;when(response.getWriter()).thenReturn(writer);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;captor = ArgumentCaptor.forClass(String.class);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;when(request.getParameter(&quot;eid&quot;)).thenReturn(eid);&#13;&#10;&#9;&#9;when(request.getParameter(&quot;fname&quot;)).thenReturn(fname);&#13;&#10;&#9;&#9;when(request.getParameter(&quot;lname&quot;)).thenReturn(lname);&#13;&#10;&#9;&#9;when(request.getParameter(&quot;gen&quot;)).thenReturn(gen);&#13;&#10;&#9;&#9;when(request.getParameter(&quot;dob&quot;)).thenReturn(dob);&#13;&#10;&#9;&#9;when(request.getParameter(&quot;job&quot;)).thenReturn(job);&#13;&#10;&#9;&#9;when(request.getParameter(&quot;contact&quot;)).thenReturn(contact);&#13;&#10;&#9;&#9;when(request.getParameter(&quot;email&quot;)).thenReturn(email);&#13;&#10;&#9;&#9;when(request.getParameter(&quot;addr&quot;)).thenReturn(addr);&#13;&#10;&#9;&#9;when(request.getParameter(&quot;accno&quot;)).thenReturn(accno);&#13;&#10;&#9;&#9;when(request.getParameter(&quot;bname&quot;)).thenReturn(bname);&#13;&#10;&#9;}&#13;&#10;&#9;&#13;&#10;&#9;/*&#13;&#10;&#9; * Test Case ID: PMS-UT-001-Registration-001&#13;&#10;&#9; * Purpose: Test if doGet writes to PrintWriter when add employee&#13;&#10;&#9; * is successful&#13;&#10;&#9; * Test Setup: Mock of employee class&#13;&#10;&#9; * Input: None&#13;&#10;&#9; * Expected Output: Writer is equal to successfulRegistration&#13;&#10;&#9; */&#13;&#10;&#9;@Test&#13;&#10;&#9;public void PMS_UT_001_Registration_001() throws Exception {&#13;&#10;&#9;&#9;//Mock can be used since the return value is ignored&#13;&#10;&#9;&#9;PowerMockito.whenNew(Employee.class).withNoArguments().&#13;&#10;&#9;&#9;&#9;thenReturn(employeeMock);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;//All valid values and the return value is replaced with success&#13;&#10;&#9;&#9;when(employeeMock.addEmployee(eid, fname, lname, gen, dob, job, &#13;&#10;&#9;&#9;&#9;&#9;contact, email, addr, accno, bname)).thenReturn(&quot;success&quot;);&#13;&#10;&#13;&#10;&#9;&#9;//Run Registration class's doGet method&#13;&#10;&#9;&#9;registration.doGet(request, response);&#9;&#9;&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;//Capture data from PrintWriter&#13;&#10;&#9;&#9;verify(writer).print(captor.capture());&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;assertEquals(successfulRegistration, captor.getValue());&#13;&#10;&#9;}&#13;&#10;&#9;&#13;&#10;&#9;/*&#13;&#10;&#9; * Test Case ID: PMS_UT_002_Registration_002&#13;&#10;&#9; * Purpose: Test if doGet redirects correctly user when addEmployee fails&#13;&#10;&#9; * Test Setup: Mock of employee class&#13;&#10;&#9; * Input: None&#13;&#10;&#9; * Expected Output: Redirect runs with failedRegistration&#13;&#10;&#9; */&#13;&#10;&#9;@Test&#13;&#10;&#9;public void PMS_UT_002_Registration_002() throws Exception {&#13;&#10;&#9;&#9;//Mock can be used since the return value is ignored&#13;&#10;&#9;&#9;PowerMockito.whenNew(Employee.class).withNoArguments().&#13;&#10;&#9;&#9;&#9;thenReturn(employeeMock);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;//One invalid value and the return value is replaced with fail&#13;&#10;&#9;&#9;when(employeeMock.addEmployee(eid, fname, lname, gen, dob, job, &#13;&#10;&#9;&#9;&#9;&#9;contact, email, addr, accno, bname)).thenReturn(&quot;fail&quot;);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;//Run doGet method&#13;&#10;&#9;&#9;registration.doGet(request, response);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;//Capture the data used in the Redirect&#13;&#10;&#9;&#9;verify(response).sendRedirect(captor.capture());&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;//Check if registration failed&#13;&#10;&#9;&#9;assertEquals(failedRegistration, captor.getValue());&#13;&#10;&#9;}&#13;&#10;&#9;&#13;&#10;&#9;/*&#13;&#10;&#9; * Test Case ID: PMS-UT-003-Registration-003&#13;&#10;&#9; * Purpose: Test if doGet writes to its PrintWriter with valid input&#13;&#10;&#9; * Test Setup: Spy of employee class&#13;&#10;&#9; * Input: eid = &quot;100&quot; , fname = &quot;Clark&quot; , lname = &quot;Kent&quot; , gen = &quot;male&quot; , &#13;&#10;&#9; * dob = &quot;1938-04-18&quot; , job = &quot;Hero&quot; , contact = &quot;911&quot; , &#13;&#10;&#9; * email = &quot;super.man@email.com&quot; , addr = &quot;W 56th ST&quot; , accno = &quot;100”, &#13;&#10;&#9; * bname = &quot;Bank of America&quot;&#13;&#10;&#9; * Expected Output: Writer is equal to successfulRegistration&#13;&#10;&#9; */&#13;&#10;&#9;//@Test&#13;&#10;&#9;public void PMS_UT_003_Registration_003() throws Exception {&#13;&#10;&#9;&#9;//Spy is used to see what the return value is of addEmployee&#13;&#10;&#9;&#9;PowerMockito.whenNew(Employee.class).withNoArguments().&#13;&#10;&#9;&#9;&#9;thenReturn(employeeSpy);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;assertEquals(&quot;success&quot;, employeeSpy.addEmployee(eid, fname, lname, &#13;&#10;&#9;&#9;&#9;&#9;gen, dob, job, contact, email, addr, accno, bname));&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;//Run Registration class's doGet method&#13;&#10;&#9;&#9;registration.doGet(request, response);&#9;&#9;&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;//Capture data from PrintWriter&#13;&#10;&#9;&#9;verify(writer).print(captor.capture());&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;//Check if registration was successful&#13;&#10;&#9;&#9;assertEquals(successfulRegistration, captor.getValue());&#13;&#10;&#9;}&#13;&#10;&#9;&#13;&#10;&#9;/*&#13;&#10;&#9; * Test Case ID: PMS_UT_004_Registration_004&#13;&#10;&#9; * Purpose: Test if a negative employee ID will call Redirect&#13;&#10;&#9; * Test Setup: Spy for employee class&#13;&#10;&#9; * Input: eid = &quot;-5&quot; , fname = &quot;Clark&quot; , lname = &quot;Kent&quot; , gen = &quot;male&quot; , &#13;&#10;&#9; * dob = &quot;1938-04-18&quot; , job = &quot;Hero&quot; , contact = &quot;911&quot; , &#13;&#10;&#9; * email = &quot;super.man@email.com&quot; , addr = &quot;W 56th ST&quot; , accno = &quot;100&quot;,  &#13;&#10;&#9; * bname = &quot;Bank of America&quot;&#13;&#10;&#9; * Expected Output: Redirect runs with failedRegistration&#13;&#10;&#9; */&#13;&#10;&#9;//@Test&#13;&#10;&#9;public void PMS_UT_004_Registration_004() throws Exception {&#13;&#10;&#9;&#9;//Spy is used to see what the return value is of addEmployee&#13;&#10;&#9;&#9;PowerMockito.whenNew(Employee.class).withNoArguments().&#13;&#10;&#9;&#9;&#9;thenReturn(employeeSpy);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;//Invalid eid&#13;&#10;&#9;&#9;String eid = &quot;-5&quot;;&#13;&#10;&#13;&#10;&#9;&#9;//Replace with invalid eid&#13;&#10;&#9;&#9;when(request.getParameter(&quot;eid&quot;)).thenReturn(eid);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;assertEquals(&quot;fail&quot;, employeeSpy.addEmployee(eid, fname, lname, &#13;&#10;&#9;&#9;&#9;&#9;gen, dob, job, contact, email, addr, accno, bname));&#13;&#10;&#13;&#10;&#9;&#9;//Run doGet method&#13;&#10;&#9;&#9;registration.doGet(request, response);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;verify(response).sendRedirect(captor.capture());&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;assertEquals(failedRegistration, captor.getValue());&#13;&#10;&#9;}&#13;&#10;&#9;&#13;&#10;&#9;/*&#13;&#10;&#9; * Test Case ID: PMS_UT_005_Registration_005&#13;&#10;&#9; * Purpose: Test if letters and special characters in employee ID will call &#13;&#10;&#9; * Redirect&#13;&#10;&#9; * Test Setup: Spy for employee class&#13;&#10;&#9; * Input: eid = &quot;ABC*&amp;123&quot; , fname = &quot;Clark&quot; , lname = &quot;Kent&quot; , &#13;&#10;&#9; * gen = &quot;male&quot; , dob = &quot;1938-04-18&quot;, job = &quot;Hero&quot; , contact = &quot;911&quot; , &#13;&#10;&#9; * email = &quot;super.man@email.com&quot; , addr = &quot;W 56th ST&quot; , accno = &quot;100&quot; ,  &#13;&#10;&#9; * bname = &quot;Bank of America&quot;&#13;&#10;&#9; * Expected Output: Redirect runs with failedRegistration&#13;&#10;&#9; */&#13;&#10;&#9;//@Test&#13;&#10;&#9;public void PMS_UT_005_Registration_005() throws Exception {&#13;&#10;&#9;&#9;//Spy is used to see what the return value is of addEmployee&#13;&#10;&#9;&#9;PowerMockito.whenNew(Employee.class).withNoArguments().&#13;&#10;&#9;&#9;&#9;thenReturn(employeeSpy);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;//Invalid eid&#13;&#10;&#9;&#9;String eid = &quot;ABC*&amp;123&quot;;&#13;&#10;&#13;&#10;&#9;&#9;//Replace with invalid eid&#13;&#10;&#9;&#9;when(request.getParameter(&quot;eid&quot;)).thenReturn(eid);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;assertEquals(&quot;fail&quot;, employeeSpy.addEmployee(eid, fname, lname, &#13;&#10;&#9;&#9;&#9;&#9;gen, dob, job, contact, email, addr, accno, bname));&#13;&#10;&#13;&#10;&#9;&#9;//Run doGet method&#13;&#10;&#9;&#9;registration.doGet(request, response);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;verify(response).sendRedirect(captor.capture());&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;assertEquals(failedRegistration, captor.getValue());&#13;&#10;&#9;}&#13;&#10;&#9;&#13;&#10;&#9;/*&#13;&#10;&#9; * Test Case ID: PMS_UT_006_Registration_006&#13;&#10;&#9; * Purpose: Test if using an ID that is already in the database will call &#13;&#10;&#9; * redirect&#13;&#10;&#9; * Test Setup: Spy for employee class and an employee with the given eid &#13;&#10;&#9; * already in the database&#13;&#10;&#9; * Input: eid = &quot;1&quot; , fname = &quot;Clark&quot; , lname = &quot;Kent&quot; , gen = &quot;male&quot; , &#13;&#10;&#9; * dob = &quot;1938-04-18&quot; , job = &quot;Hero&quot; , contact = &quot;911&quot; , &#13;&#10;&#9; * email = &quot;super.man@email.com&quot; , addr = &quot;W 56th ST&quot; , accno = &quot;100&quot;,  &#13;&#10;&#9; * bname = &quot;Bank of America&quot;&#13;&#10;&#9; * Expected Output: Redirect runs with failedRegistration&#13;&#10;&#9; */&#13;&#10;&#9;//@Test&#13;&#10;&#9;public void PMS_UT_006_Registration_006() throws Exception {&#13;&#10;&#9;&#9;//Spy is used to see what the return value is of addEmployee&#13;&#10;&#9;&#9;PowerMockito.whenNew(Employee.class).withNoArguments().&#13;&#10;&#9;&#9;&#9;thenReturn(employeeSpy);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;//Duplicate eid&#13;&#10;&#9;&#9;String eid = &quot;1&quot;;&#13;&#10;&#13;&#10;&#9;&#9;//Replace with duplicate&#13;&#10;&#9;&#9;when(request.getParameter(&quot;eid&quot;)).thenReturn(eid);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;assertEquals(&quot;fail&quot;, employeeSpy.addEmployee(eid, fname, lname, &#13;&#10;&#9;&#9;&#9;&#9;gen, dob, job, contact, email, addr, accno, bname));&#13;&#10;&#13;&#10;&#9;&#9;//Run doGet method&#13;&#10;&#9;&#9;registration.doGet(request, response);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;verify(response).sendRedirect(captor.capture());&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;assertEquals(failedRegistration, captor.getValue());&#13;&#10;&#9;}&#13;&#10;&#9;&#13;&#10;&#9;/*&#13;&#10;&#9; * Test Case ID: PMS_UT_007_Registration_007&#13;&#10;&#9; * Purpose: Test if “fname = failure” will call redirect&#13;&#10;&#9; * Test Setup: Spy for employee class&#13;&#10;&#9; * Input: eid = &quot;100&quot; , fname = &quot;failure&quot; , lname = &quot;Kent&quot; , gen = &quot;male&quot; ,&#13;&#10;&#9; * dob = &quot;1938-04-18&quot; , job = &quot;Hero&quot; , contact = &quot;911&quot; , &#13;&#10;&#9; * email = &quot;super.man@email.com&quot; , addr = &quot;W 56th ST&quot; , accno = &quot;100&quot;,  &#13;&#10;&#9; * bname = &quot;Bank of America&quot;&#13;&#10;&#9; * Expected Output: Redirect runs with failedRegistration&#13;&#10;&#9; */&#13;&#10;&#9;//@Test&#13;&#10;&#9;public void PMS_UT_007_Registration_007() throws Exception {&#13;&#10;&#9;&#9;//Spy is used to see what the return value is of addEmployee&#13;&#10;&#9;&#9;PowerMockito.whenNew(Employee.class).withNoArguments().&#13;&#10;&#9;&#9;&#9;thenReturn(employeeSpy);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;//Invalid fname&#13;&#10;&#9;&#9;String fname = &quot;failure&quot;;&#13;&#10;&#13;&#10;&#9;&#9;//Replace with invalid fname&#13;&#10;&#9;&#9;when(request.getParameter(&quot;fname&quot;)).thenReturn(fname);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;assertEquals(&quot;fail&quot;, employeeSpy.addEmployee(eid, fname, lname, &#13;&#10;&#9;&#9;&#9;&#9;gen, dob, job, contact, email, addr, accno, bname));&#13;&#10;&#13;&#10;&#9;&#9;//Run doGet method&#13;&#10;&#9;&#9;registration.doGet(request, response);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;verify(response).sendRedirect(captor.capture());&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;assertEquals(failedRegistration, captor.getValue());&#13;&#10;&#9;}&#13;&#10;&#9;&#13;&#10;&#9;/*&#13;&#10;&#9; * Test Case ID: PMS_UT_008_Registration_008&#13;&#10;&#9; * Purpose: Test if redirect is called if fname is left blank&#13;&#10;&#9; * Test Setup: Spy for employee class&#13;&#10;&#9; * Input: eid = &quot;100&quot; , fname = &quot;&quot; , lname = &quot;Kent&quot; , gen = &quot;male&quot; , &#13;&#10;&#9; * dob = &quot;1938-04-18&quot; , job = &quot;Hero&quot; , contact = &quot;911&quot; , &#13;&#10;&#9; * email = &quot;super.man@email.com&quot; , addr = &quot;W 56th ST&quot; , accno = &quot;100&quot;, &#13;&#10;&#9; * bname = &quot;Bank of America&quot;&#13;&#10;&#9; * Expected Output: Redirect runs with failedRegistration&#13;&#10;&#9; */&#13;&#10;&#9;//@Test&#13;&#10;&#9;public void PMS_UT_008_Registration_008() throws Exception {&#13;&#10;&#9;&#9;//Spy is used to see what the return value is of addEmployee&#13;&#10;&#9;&#9;PowerMockito.whenNew(Employee.class).withNoArguments().&#13;&#10;&#9;&#9;&#9;thenReturn(employeeSpy);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;//Invalid fname&#13;&#10;&#9;&#9;String fname = &quot;&quot;;&#13;&#10;&#13;&#10;&#9;&#9;//Replace with invalid fname&#13;&#10;&#9;&#9;when(request.getParameter(&quot;fname&quot;)).thenReturn(fname);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;assertEquals(&quot;fail&quot;, employeeSpy.addEmployee(eid, fname, lname, &#13;&#10;&#9;&#9;&#9;&#9;gen, dob, job, contact, email, addr, accno, bname));&#13;&#10;&#13;&#10;&#9;&#9;//Run doGet method&#13;&#10;&#9;&#9;registration.doGet(request, response);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;verify(response).sendRedirect(captor.capture());&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;assertEquals(failedRegistration, captor.getValue());&#13;&#10;&#9;}&#13;&#10;&#9;&#13;&#10;&#9;/*&#13;&#10;&#9; * Test Case ID: PMS_UT_009_Registration_009&#13;&#10;&#9; * Purpose: Test if redirect is called if fname contains numbers and &#13;&#10;&#9; * special characters&#13;&#10;&#9; * Test Setup: Spy for employee class&#13;&#10;&#9; * Input: eid = &quot;100&quot; , fname = &quot;&amp;u93rm4%&quot; , lname = &quot;Kent&quot; , gen = &quot;male&quot; ,&#13;&#10;&#9; * dob = &quot;1938-04-18&quot; , job = &quot;Hero&quot; , contact = &quot;911&quot; , &#13;&#10;&#9; * email = &quot;super.man@email.com&quot; , addr = &quot;W 56th ST&quot; , accno = &quot;100&quot; ,  &#13;&#10;&#9; * bname = &quot;Bank of America&quot;&#13;&#10;&#9; * Expected Output: Redirect runs with failedRegistration&#13;&#10;&#9; */&#13;&#10;&#9;//@Test&#13;&#10;&#9;public void PMS_UT_009_Registration_009() throws Exception {&#13;&#10;&#9;&#9;//Spy is used to see what the return value is of addEmployee&#13;&#10;&#9;&#9;PowerMockito.whenNew(Employee.class).withNoArguments().&#13;&#10;&#9;&#9;&#9;thenReturn(employeeSpy);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;//Invalid fname&#13;&#10;&#9;&#9;String fname = &quot;&amp;u93rm4%&quot;;&#13;&#10;&#13;&#10;&#9;&#9;//Replace with invalid fname&#13;&#10;&#9;&#9;when(request.getParameter(&quot;fname&quot;)).thenReturn(fname);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;assertEquals(&quot;fail&quot;, employeeSpy.addEmployee(eid, fname, lname, &#13;&#10;&#9;&#9;&#9;&#9;gen, dob, job, contact, email, addr, accno, bname));&#13;&#10;&#13;&#10;&#9;&#9;//Run doGet method&#13;&#10;&#9;&#9;registration.doGet(request, response);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;verify(response).sendRedirect(captor.capture());&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;assertEquals(failedRegistration, captor.getValue());&#13;&#10;&#9;}&#13;&#10;&#9;&#13;&#10;&#9;/*&#13;&#10;&#9; * Test Case ID: PMS_UT_010_Registration_010&#13;&#10;&#9; * Purpose: Test if redirect is called if lname is left blank&#13;&#10;&#9; * Test Setup: Spy for employee class&#13;&#10;&#9; * Input: eid = &quot;100&quot; , fname = &quot;Clark&quot; , lname = &quot;&quot; , gen = &quot;male&quot; , &#13;&#10;&#9; * dob = &quot;1938-04-18&quot; , job = &quot;Hero&quot; , contact = &quot;911&quot; , &#13;&#10;&#9; * email = &quot;super.man@email.com&quot; , addr = &quot;W 56th ST&quot; , accno = &quot;100&quot;,  &#13;&#10;&#9; * bname = &quot;Bank of America&quot;&#13;&#10;&#9; * Expected Output: Redirect runs with failedRegistration&#13;&#10;&#9; */&#13;&#10;&#9;//@Test&#13;&#10;&#9;public void PMS_UT_010_Registration_010() throws Exception {&#13;&#10;&#9;&#9;//Spy is used to see what the return value is of addEmployee&#13;&#10;&#9;&#9;PowerMockito.whenNew(Employee.class).withNoArguments().&#13;&#10;&#9;&#9;&#9;thenReturn(employeeSpy);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;//Invalid lname&#13;&#10;&#9;&#9;String lname = &quot;&quot;;&#13;&#10;&#13;&#10;&#9;&#9;//Replace with invalid lname&#13;&#10;&#9;&#9;when(request.getParameter(&quot;lname&quot;)).thenReturn(lname);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;assertEquals(&quot;fail&quot;, employeeSpy.addEmployee(eid, fname, lname, &#13;&#10;&#9;&#9;&#9;&#9;gen, dob, job, contact, email, addr, accno, bname));&#13;&#10;&#13;&#10;&#9;&#9;//Run doGet method&#13;&#10;&#9;&#9;registration.doGet(request, response);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;verify(response).sendRedirect(captor.capture());&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;assertEquals(failedRegistration, captor.getValue());&#13;&#10;&#9;}&#13;&#10;&#9;&#13;&#10;&#9;/*&#13;&#10;&#9; * Test Case ID: PMS_UT_011_Registration_011&#13;&#10;&#9; * Purpose: Test if redirect is called if lname contains numbers and &#13;&#10;&#9; * special characters &#13;&#10;&#9; * Test Setup: Spy for employee class&#13;&#10;&#9; * Input: eid = &quot;100&quot; , fname = &quot;Clark&quot; , lname = &quot;&amp;u93rm4%&quot; , &#13;&#10;&#9; * gen = &quot;male&quot; , dob = &quot;1938-04-18&quot;, job = &quot;Hero&quot; , contact = &quot;911&quot; , &#13;&#10;&#9; * email = &quot;super.man@email.com&quot; , addr = &quot;W 56th ST&quot; , accno = &quot;100&quot; ,  &#13;&#10;&#9; * bname = &quot;Bank of America&quot;&#13;&#10;&#9; * Expected Output: Redirect runs with failedRegistration&#13;&#10;&#9; */&#13;&#10;&#9;//@Test&#13;&#10;&#9;public void PMS_UT_011_Registration_011() throws Exception {&#13;&#10;&#9;&#9;//Spy is used to see what the return value is of addEmployee&#13;&#10;&#9;&#9;PowerMockito.whenNew(Employee.class).withNoArguments().&#13;&#10;&#9;&#9;&#9;thenReturn(employeeSpy);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;//Invalid lname&#13;&#10;&#9;&#9;String lname = &quot;&amp;u93rm4%&quot;;&#13;&#10;&#13;&#10;&#9;&#9;//Replace with invalid lname&#13;&#10;&#9;&#9;when(request.getParameter(&quot;lname&quot;)).thenReturn(lname);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;assertEquals(&quot;fail&quot;, employeeSpy.addEmployee(eid, fname, lname, &#13;&#10;&#9;&#9;&#9;&#9;gen, dob, job, contact, email, addr, accno, bname));&#13;&#10;&#13;&#10;&#9;&#9;//Run doGet method&#13;&#10;&#9;&#9;registration.doGet(request, response);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;verify(response).sendRedirect(captor.capture());&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;assertEquals(failedRegistration, captor.getValue());&#13;&#10;&#9;}&#13;&#10;&#9;&#13;&#10;&#9;/*&#13;&#10;&#9; * Test Case ID: PMS_UT_012_Registration_012&#13;&#10;&#9; * Purpose: Test if PrintWriter is called if the fname and lname already &#13;&#10;&#9; * exist in the database but not the employee ID&#13;&#10;&#9; * Test Setup: Spy for employee class an employee with the given fname and&#13;&#10;&#9; * lname already in the database&#13;&#10;&#9; * Input: eid = &quot;100&quot; , fname = &quot;Adam&quot; , lname = &quot;Sandler&quot; , gen = &quot;male&quot; , &#13;&#10;&#9; * dob = &quot;1938-04-18&quot; , job = &quot;Hero&quot; , contact = &quot;911&quot; , &#13;&#10;&#9; * email = &quot;super.man@email.com&quot; , addr = &quot;W 56th ST&quot; , accno = &quot;100&quot; ,  &#13;&#10;&#9; * bname = &quot;Bank of America&quot;&#13;&#10;&#9; * Expected Output: Writer is equal to successfulRegistration&#13;&#10;&#9; */&#13;&#10;&#9;//@Test&#13;&#10;&#9;public void PMS_UT_012_Registration_012() throws Exception {&#13;&#10;&#9;&#9;//Spy is used to see what the return value is of addEmployee&#13;&#10;&#9;&#9;PowerMockito.whenNew(Employee.class).withNoArguments().&#13;&#10;&#9;&#9;&#9;thenReturn(employeeSpy);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;//Duplicate fname and lname&#13;&#10;&#9;&#9;String fname = &quot;Adam&quot;;&#13;&#10;&#9;&#9;String lname = &quot;Sandler&quot;;&#13;&#10;&#13;&#10;&#9;&#9;//Replace with invalid fname&#13;&#10;&#9;&#9;when(request.getParameter(&quot;fname&quot;)).thenReturn(fname);&#13;&#10;&#9;&#9;when(request.getParameter(&quot;lname&quot;)).thenReturn(lname);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;assertEquals(&quot;success&quot;, employeeSpy.addEmployee(eid, fname, lname, &#13;&#10;&#9;&#9;&#9;&#9;gen, dob, job, contact, email, addr, accno, bname));&#13;&#10;&#13;&#10;&#9;&#9;//Run doGet method&#13;&#10;&#9;&#9;registration.doGet(request, response);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;//Capture data from PrintWriter&#13;&#10;&#9;&#9;verify(writer).print(captor.capture());&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;//Check if registration was successful&#13;&#10;&#9;&#9;assertEquals(successfulRegistration, captor.getValue());&#13;&#10;&#9;}&#13;&#10;&#9;&#13;&#10;&#9;/*&#13;&#10;&#9; * Test Case ID: PMS_UT_013_Registration_013&#13;&#10;&#9; * Purpose: Test if an invalid dob input will call redirect&#13;&#10;&#9; * Test Setup: Spy for employee class&#13;&#10;&#9; * Input: eid = &quot;100&quot; , fname = &quot;Clark&quot; , lname = &quot;Kent&quot; , gen = &quot;male&quot; , &#13;&#10;&#9; * dob = &quot;123456-04-18&quot; , job = &quot;Hero&quot; , contact = &quot;911&quot; , &#13;&#10;&#9; * email = &quot;super.man@email.com&quot; , addr = &quot;W 56th ST&quot; , accno = &quot;100&quot; ,  &#13;&#10;&#9; * bname = &quot;Bank of America&quot;&#13;&#10;&#9; * Expected Output: Redirect runs with failedRegistration&#13;&#10;&#9; */&#13;&#10;&#9;//@Test&#13;&#10;&#9;public void PMS_UT_013_Registration_013() throws Exception {&#13;&#10;&#9;&#9;//Spy is used to see what the return value is of addEmployee&#13;&#10;&#9;&#9;PowerMockito.whenNew(Employee.class).withNoArguments().&#13;&#10;&#9;&#9;&#9;thenReturn(employeeSpy);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;//Invalid invalid&#13;&#10;&#9;&#9;String dob = &quot;123456-04-18&quot;;&#13;&#10;&#13;&#10;&#9;&#9;//Replace with invalid dob&#13;&#10;&#9;&#9;when(request.getParameter(&quot;dob&quot;)).thenReturn(dob);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;assertEquals(&quot;fail&quot;, employeeSpy.addEmployee(eid, fname, lname, &#13;&#10;&#9;&#9;&#9;&#9;gen, dob, job, contact, email, addr, accno, bname));&#13;&#10;&#13;&#10;&#9;&#9;//Run doGet method&#13;&#10;&#9;&#9;registration.doGet(request, response);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;verify(response).sendRedirect(captor.capture());&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;assertEquals(failedRegistration, captor.getValue());&#13;&#10;&#9;}&#13;&#10;&#9;&#13;&#10;&#9;/*&#13;&#10;&#9; * Test Case ID: PMS_UT_014_Registration_014&#13;&#10;&#9; * Purpose: Test if empty job field will call PrintWriter&#13;&#10;&#9; * Test Setup: Spy for employee class&#13;&#10;&#9; * Input: eid = &quot;100&quot; , fname = &quot;Clark&quot; , lname = &quot;Kent&quot; , gen = &quot;male&quot; , &#13;&#10;&#9; * dob = &quot;1938-04-18&quot; , job =  &quot;&quot; , contact = &quot;911&quot; , &#13;&#10;&#9; * email = &quot;super.man@email.com&quot; , addr = &quot;W 56th ST&quot; , accno = &quot;100&quot; ,  &#13;&#10;&#9; * bname = &quot;Bank of America&quot;&#13;&#10;&#9; * Expected Output: Writer is equal to successfulRegistration&#13;&#10;&#9; */&#13;&#10;&#9;//@Test&#13;&#10;&#9;public void PMS_UT_014_Registration_014() throws Exception {&#13;&#10;&#9;&#9;//Spy is used to see what the return value is of addEmployee&#13;&#10;&#9;&#9;PowerMockito.whenNew(Employee.class).withNoArguments().&#13;&#10;&#9;&#9;&#9;thenReturn(employeeSpy);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;//Empty job input&#13;&#10;&#9;&#9;String job = &quot;&quot;;&#13;&#10;&#13;&#10;&#9;&#9;//Replace with new job&#13;&#10;&#9;&#9;when(request.getParameter(&quot;job&quot;)).thenReturn(job);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;assertEquals(&quot;success&quot;, employeeSpy.addEmployee(eid, fname, lname, &#13;&#10;&#9;&#9;&#9;&#9;gen, dob, job, contact, email, addr, accno, bname));&#13;&#10;&#13;&#10;&#9;&#9;//Run doGet method&#13;&#10;&#9;&#9;registration.doGet(request, response);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;//Capture data from PrintWriter&#13;&#10;&#9;&#9;verify(writer).print(captor.capture());&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;//Check if registration was successful&#13;&#10;&#9;&#9;assertEquals(successfulRegistration, captor.getValue());&#13;&#10;&#9;}&#13;&#10;&#9;&#13;&#10;&#9;/*&#13;&#10;&#9; * Test Case ID: PMS_UT_015_Registration_015&#13;&#10;&#9; * Purpose: Test if redirect is called if contact contains only special &#13;&#10;&#9; * characters&#13;&#10;&#9; * Test Setup: Spy for employee class&#13;&#10;&#9; * Input: eid = &quot;100&quot; , fname = &quot;Clark&quot; , lname = &quot;Kent&quot; , gen = &quot;male&quot; , &#13;&#10;&#9; * dob = &quot;1938-04-18&quot; , job = &quot;Hero&quot; , contact = &quot;!@#$%^&amp;*()&quot; , &#13;&#10;&#9; * email = &quot;super.man@email.com&quot; , addr = &quot;W 56th ST&quot; , accno = &quot;100&quot; ,  &#13;&#10;&#9; * bname = &quot;Bank of America&quot;&#13;&#10;&#9; * Expected Output: Redirect runs with failedRegistration&#13;&#10;&#9; */&#13;&#10;&#9;//@Test&#13;&#10;&#9;public void PMS_UT_015_Registration_015() throws Exception {&#13;&#10;&#9;&#9;//Spy is used to see what the return value is of addEmployee&#13;&#10;&#9;&#9;PowerMockito.whenNew(Employee.class).withNoArguments().&#13;&#10;&#9;&#9;&#9;thenReturn(employeeSpy);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;//Invalid contact&#13;&#10;&#9;&#9;String contact = &quot;!@#$%^&amp;*()&quot;;&#13;&#10;&#13;&#10;&#9;&#9;//Replace with invalid contact&#13;&#10;&#9;&#9;when(request.getParameter(&quot;contact&quot;)).thenReturn(contact);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;assertEquals(&quot;fail&quot;, employeeSpy.addEmployee(eid, fname, lname, &#13;&#10;&#9;&#9;&#9;&#9;gen, dob, job, contact, email, addr, accno, bname));&#13;&#10;&#13;&#10;&#9;&#9;//Run doGet method&#13;&#10;&#9;&#9;registration.doGet(request, response);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;verify(response).sendRedirect(captor.capture());&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;assertEquals(failedRegistration, captor.getValue());&#13;&#10;&#9;}&#13;&#10;&#9;&#13;&#10;&#9;/*&#13;&#10;&#9; * Test Case ID: PMS_UT_016_Registration_016&#13;&#10;&#9; * Purpose: Test if redirect will be called when using invalid email&#13;&#10;&#9; * Test Setup: Spy for employee class&#13;&#10;&#9; * Input: eid = &quot;100&quot; , fname = &quot;Clark&quot; , lname = &quot;Kent&quot; , gen = &quot;male&quot; , &#13;&#10;&#9; * dob = &quot;1938-04-18&quot; , job = &quot;Hero&quot; , contact = &quot;911&quot; , &#13;&#10;&#9; * email = &quot;dailyPlanet&quot; , addr = &quot;W 56th ST&quot; , accno = &quot;100&quot;,  &#13;&#10;&#9; * bname = &quot;Bank of America&quot;&#13;&#10;&#9; * Expected Output: Redirect runs with failedRegistration&#13;&#10;&#9; */&#13;&#10;&#9;//@Test&#13;&#10;&#9;public void PMS_UT_016_Registration_016() throws Exception {&#13;&#10;&#9;&#9;//Spy is used to see what the return value is of addEmployee&#13;&#10;&#9;&#9;PowerMockito.whenNew(Employee.class).withNoArguments().&#13;&#10;&#9;&#9;&#9;thenReturn(employeeSpy);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;//Invalid email&#13;&#10;&#9;&#9;String email = &quot;dailyPlanet&quot;;&#13;&#10;&#13;&#10;&#9;&#9;//Replace with invalid email&#13;&#10;&#9;&#9;when(request.getParameter(&quot;email&quot;)).thenReturn(email);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;assertEquals(&quot;fail&quot;, employeeSpy.addEmployee(eid, fname, lname, &#13;&#10;&#9;&#9;&#9;&#9;gen, dob, job, contact, email, addr, accno, bname));&#13;&#10;&#13;&#10;&#9;&#9;//Run doGet method&#13;&#10;&#9;&#9;registration.doGet(request, response);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;verify(response).sendRedirect(captor.capture());&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;assertEquals(failedRegistration, captor.getValue());&#13;&#10;&#9;}&#13;&#10;&#9;&#13;&#10;&#9;/*&#13;&#10;&#9; * Test Case ID: PMS_UT_017_Registration_017&#13;&#10;&#9; * Purpose: Test if an invalid addr will call redirect&#13;&#10;&#9; * Test Setup: Spy for employee class&#13;&#10;&#9; * Input: eid = &quot;100&quot; , fname = &quot;Clark&quot; , lname = &quot;Kent&quot; , gen = &quot;male&quot; , &#13;&#10;&#9; * dob = &quot;1938-04-18&quot; , job = &quot;Hero&quot; , contact = &quot;911&quot; , &#13;&#10;&#9; * email = &quot;super.man@email.com&quot; , addr = &quot;Krypton&quot; , accno = &quot;100&quot;,  &#13;&#10;&#9; * bname = &quot;Bank of America&quot;&#13;&#10;&#9; * Expected Output: Redirect runs with failedRegistration&#13;&#10;&#9; */&#13;&#10;&#9;//@Test&#13;&#10;&#9;public void PMS_UT_017_Registration_017() throws Exception {&#13;&#10;&#9;&#9;//Spy is used to see what the return value is of addEmployee&#13;&#10;&#9;&#9;PowerMockito.whenNew(Employee.class).withNoArguments().&#13;&#10;&#9;&#9;&#9;thenReturn(employeeSpy);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;//Invalid addr&#13;&#10;&#9;&#9;String addr = &quot;Krypton&quot;;&#13;&#10;&#13;&#10;&#9;&#9;//Replace with invalid addr&#13;&#10;&#9;&#9;when(request.getParameter(&quot;addr&quot;)).thenReturn(addr);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;assertEquals(&quot;fail&quot;, employeeSpy.addEmployee(eid, fname, lname, &#13;&#10;&#9;&#9;&#9;&#9;gen, dob, job, contact, email, addr, accno, bname));&#13;&#10;&#13;&#10;&#9;&#9;//Run doGet method&#13;&#10;&#9;&#9;registration.doGet(request, response);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;verify(response).sendRedirect(captor.capture());&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;assertEquals(failedRegistration, captor.getValue());&#13;&#10;&#9;}&#13;&#10;&#9;&#13;&#10;&#9;/*&#13;&#10;&#9; * Test Case ID: PMS_UT_018_Registration_018&#13;&#10;&#9; * Purpose: Test if an invalid accno will call redirect&#13;&#10;&#9; * Test Setup: Spy for employee class&#13;&#10;&#9; * Input: eid = &quot;100&quot; , fname = &quot;Clark&quot; , lname = &quot;Kent&quot; , gen = &quot;male&quot; , &#13;&#10;&#9; * dob = &quot;1938-04-18&quot; , job = &quot;Hero&quot; , contact = &quot;911&quot; , &#13;&#10;&#9; * email = &quot;super.man@email.com&quot; , addr = &quot;W 56th ST&quot; , accno = &quot;&amp;#*S12&quot; ,  &#13;&#10;&#9; * bname = &quot;Bank of America&quot;&#13;&#10;&#9; * Expected Output: Redirect runs with failedRegistration&#13;&#10;&#9; */&#13;&#10;&#9;//@Test&#13;&#10;&#9;public void PMS_UT_018_Registration_018() throws Exception {&#13;&#10;&#9;&#9;//Spy is used to see what the return value is of addEmployee&#13;&#10;&#9;&#9;PowerMockito.whenNew(Employee.class).withNoArguments().&#13;&#10;&#9;&#9;&#9;thenReturn(employeeSpy);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;//Invalid accno&#13;&#10;&#9;&#9;String accno = &quot;&amp;#*S12&quot;;&#13;&#10;&#13;&#10;&#9;&#9;//Replace with invalid accno&#13;&#10;&#9;&#9;when(request.getParameter(&quot;accno&quot;)).thenReturn(accno);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;assertEquals(&quot;fail&quot;, employeeSpy.addEmployee(eid, fname, lname, &#13;&#10;&#9;&#9;&#9;&#9;gen, dob, job, contact, email, addr, accno, bname));&#13;&#10;&#13;&#10;&#9;&#9;//Run doGet method&#13;&#10;&#9;&#9;registration.doGet(request, response);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;verify(response).sendRedirect(captor.capture());&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;assertEquals(failedRegistration, captor.getValue());&#13;&#10;&#9;}&#13;&#10;&#9;&#13;&#10;&#9;/*&#13;&#10;&#9; * Test Case ID: PMS_UT_019_Registration_019&#13;&#10;&#9; * Purpose: Test if accno and bname will call PrintWriter if both are left &#13;&#10;&#9; * blank&#13;&#10;&#9; * Test Setup: Spy for employee class&#13;&#10;&#9; * Input: eid = &quot;100&quot; , fname = &quot;Clark&quot; , lname = &quot;Kent&quot; , gen = &quot;male&quot; , &#13;&#10;&#9; * dob = &quot;1938-04-18&quot; , job = &quot;Hero&quot; , contact = &quot;911&quot; , &#13;&#10;&#9; * email = &quot;super.man@email.com&quot; , addr = &quot;W 56th ST&quot; , accno = &quot;&quot; ,  &#13;&#10;&#9; * bname = &quot;&quot;&#13;&#10;&#9; * Expected Output: Writer is equal to successfulRegistration&#13;&#10;&#9; */&#13;&#10;&#9;//@Test&#13;&#10;&#9;public void PMS_UT_019_Registration_019() throws Exception {&#13;&#10;&#9;&#9;//Spy is used to see what the return value is of addEmployee&#13;&#10;&#9;&#9;PowerMockito.whenNew(Employee.class).withNoArguments().&#13;&#10;&#9;&#9;&#9;thenReturn(employeeSpy);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;//Empty accno and bname&#13;&#10;&#9;&#9;String accno = &quot;&quot;;&#13;&#10;&#9;&#9;String bname = &quot;&quot;;&#13;&#10;&#13;&#10;&#9;&#9;//Replace with empty accno and bname&#13;&#10;&#9;&#9;when(request.getParameter(&quot;accno&quot;)).thenReturn(accno);&#13;&#10;&#9;&#9;when(request.getParameter(&quot;bname&quot;)).thenReturn(bname);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;assertEquals(&quot;fail&quot;, employeeSpy.addEmployee(eid, fname, lname, &#13;&#10;&#9;&#9;&#9;&#9;gen, dob, job, contact, email, addr, accno, bname));&#13;&#10;&#13;&#10;&#9;&#9;//Run doGet method&#13;&#10;&#9;&#9;registration.doGet(request, response);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;//Capture data from PrintWriter&#13;&#10;&#9;&#9;verify(writer).print(captor.capture());&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;//Check if registration was successful&#13;&#10;&#9;&#9;assertEquals(successfulRegistration, captor.getValue());&#13;&#10;&#9;}&#13;&#10;&#9;&#13;&#10;&#9;/*&#13;&#10;&#9; * Test Case ID: PMS_UT_020_Registration_020&#13;&#10;&#9; * Purpose: Test if redirect is called if there is valid information for &#13;&#10;&#9; * accno and no input for bname&#13;&#10;&#9; * Test Setup: Spy for employee class&#13;&#10;&#9; * Input: eid = &quot;100&quot; , fname = &quot;Clark&quot; , lname = &quot;Kent&quot; , gen = &quot;male&quot; , &#13;&#10;&#9; * dob = &quot;1938-04-18&quot; , job = &quot;Hero&quot; , contact = &quot;911&quot; , &#13;&#10;&#9; * email = &quot;super.man@email.com&quot; , addr = &quot;W 56th ST&quot; , accno = &quot;100&quot;,  &#13;&#10;&#9; * bname = &quot;&quot;&#13;&#10;&#9; * Expected Output: Redirect runs with failedRegistration&#13;&#10;&#9; */&#13;&#10;&#9;//@Test&#13;&#10;&#9;public void PMS_UT_020_Registration_020() throws Exception {&#13;&#10;&#9;&#9;//Spy is used to see what the return value is of addEmployee&#13;&#10;&#9;&#9;PowerMockito.whenNew(Employee.class).withNoArguments().&#13;&#10;&#9;&#9;&#9;thenReturn(employeeSpy);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;//Empty accno and bname&#13;&#10;&#9;&#9;String accno = &quot;100&quot;;&#13;&#10;&#9;&#9;String bname = &quot;&quot;;&#13;&#10;&#13;&#10;&#9;&#9;//Replace with empty accno and bname&#13;&#10;&#9;&#9;when(request.getParameter(&quot;accno&quot;)).thenReturn(accno);&#13;&#10;&#9;&#9;when(request.getParameter(&quot;bname&quot;)).thenReturn(bname);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;assertEquals(&quot;fail&quot;, employeeSpy.addEmployee(eid, fname, lname, &#13;&#10;&#9;&#9;&#9;&#9;gen, dob, job, contact, email, addr, accno, bname));&#13;&#10;&#13;&#10;&#9;&#9;//Run doGet method&#13;&#10;&#9;&#9;registration.doGet(request, response);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;verify(response).sendRedirect(captor.capture());&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;assertEquals(failedRegistration, captor.getValue());&#13;&#10;&#9;}&#13;&#10;&#9;&#13;&#10;&#9;/*&#13;&#10;&#9; * Test Case ID: PMS_UT_021_Registration_021&#13;&#10;&#9; * Purpose: Test if redirect is called if all input matches an employee &#13;&#10;&#9; * already in the database&#13;&#10;&#9; * Test Setup: Spy for employee class and an employee with matching data in &#13;&#10;&#9; * the database&#13;&#10;&#9; * Input: eid = &quot;1&quot; , fname = &quot;Adam&quot; , lname = &quot;Sandler&quot; , gen = &quot;on&quot; , &#13;&#10;&#9; * dob = &quot;1901-01-01&quot; , job = &quot;Movie Star&quot; , contact = &quot;0&quot; , &#13;&#10;&#9; * email = &quot;adam.sandler@email.com&quot; , addr = &quot;2121 SW 12TH ST&quot; , &#13;&#10;&#9; * accno = &quot;1&quot;,  bname = &quot;Bank of America&quot;&#13;&#10;&#9; * Expected Output: Redirect runs with failedRegistration&#13;&#10;&#9; */&#13;&#10;&#9;//@Test&#13;&#10;&#9;public void PMS_UT_021_Registration_021() throws Exception {&#13;&#10;&#9;&#9;//Spy is used to see what the return value is of addEmployee&#13;&#10;&#9;&#9;PowerMockito.whenNew(Employee.class).withNoArguments().&#13;&#10;&#9;&#9;&#9;thenReturn(employeeSpy);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;//Values already in database&#13;&#10;&#9;&#9;String eid = &quot;1&quot;;&#13;&#10;&#9;&#9;String fname = &quot;Adam&quot;;&#13;&#10;&#9;&#9;String lname = &quot;Sandler&quot;;&#13;&#10;&#9;&#9;String gen = &quot;on&quot;;&#13;&#10;&#9;&#9;String dob = &quot;1901-01-01&quot;;&#13;&#10;&#9;&#9;String job = &quot;Movie Star&quot;;&#13;&#10;&#9;&#9;String contact = &quot;0&quot;;&#13;&#10;&#9;&#9;String email = &quot;dam.sandler@email.com&quot;;&#13;&#10;&#9;&#9;String addr = &quot;2121 SW 12TH ST&quot;;&#13;&#10;&#9;&#9;String accno = &quot;1&quot;;&#13;&#10;&#9;&#9;String bname = &quot;Bank of America&quot;;&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;//Replace with duplicate values&#13;&#10;&#9;&#9;when(request.getParameter(&quot;eid&quot;)).thenReturn(eid);&#13;&#10;&#9;&#9;when(request.getParameter(&quot;fname&quot;)).thenReturn(fname);&#13;&#10;&#9;&#9;when(request.getParameter(&quot;lname&quot;)).thenReturn(lname);&#13;&#10;&#9;&#9;when(request.getParameter(&quot;gen&quot;)).thenReturn(gen);&#13;&#10;&#9;&#9;when(request.getParameter(&quot;dob&quot;)).thenReturn(dob);&#13;&#10;&#9;&#9;when(request.getParameter(&quot;job&quot;)).thenReturn(job);&#13;&#10;&#9;&#9;when(request.getParameter(&quot;contact&quot;)).thenReturn(contact);&#13;&#10;&#9;&#9;when(request.getParameter(&quot;email&quot;)).thenReturn(email);&#13;&#10;&#9;&#9;when(request.getParameter(&quot;addr&quot;)).thenReturn(addr);&#13;&#10;&#9;&#9;when(request.getParameter(&quot;accno&quot;)).thenReturn(accno);&#13;&#10;&#9;&#9;when(request.getParameter(&quot;bname&quot;)).thenReturn(bname);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;assertEquals(&quot;fail&quot;, employeeSpy.addEmployee(eid, fname, lname, &#13;&#10;&#9;&#9;&#9;&#9;gen, dob, job, contact, email, addr, accno, bname));&#13;&#10;&#13;&#10;&#9;&#9;//Run doGet method&#13;&#10;&#9;&#9;registration.doGet(request, response);&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;verify(response).sendRedirect(captor.capture());&#13;&#10;&#9;&#9;&#13;&#10;&#9;&#9;assertEquals(failedRegistration, captor.getValue());&#13;&#10;&#9;}&#13;&#10;}&#13;&#10;" Filename="RegistrationTest.java" Intrnl_Id="1"/>
+</SrcFileList>
+<CritList>
+<CritListEntry Name="org.codecover.model.utils.criteria.LoopCoverage" PluginName="org.codecover"/>
+<CritListEntry Name="org.codecover.model.utils.criteria.QMOCoverage" PluginName="org.codecover"/>
+<CritListEntry Name="org.codecover.model.utils.criteria.ConditionCoverage" PluginName="org.codecover"/>
+<CritListEntry Name="org.codecover.model.utils.criteria.BranchCoverage" PluginName="org.codecover"/>
+<CritListEntry Name="org.codecover.model.utils.criteria.SynchronizedStatementCoverage" PluginName="org.codecover"/>
+<CritListEntry Name="org.codecover.model.utils.criteria.StatementCoverage" PluginName="org.codecover"/>
+</CritList>
+<BoolOpList/>
+<HierarchyLvlTypeList>
+<HierarchyLvlType EnglishName="package" IntrnlName="package" Intrnl_Id="2"/>
+<HierarchyLvlType EnglishName="method" IntrnlName="method" Intrnl_Id="3"/>
+<HierarchyLvlType EnglishName="class" IntrnlName="class" Intrnl_Id="4"/>
+<HierarchyLvlType EnglishName="default package" IntrnlName="default package" Intrnl_Id="5"/>
+</HierarchyLvlTypeList>
+<MASTRoot>
+<HierarchyLvl HierarchyLvlId="277" HierarchyLvlTypeId="5" Intrnl_Id="6" Name="default package">
+<Header/>
+<LocList/>
+<HierarchyLvl HierarchyLvlId="276" HierarchyLvlTypeId="2" Intrnl_Id="7" Name="controller">
+<Header/>
+<LocList/>
+<HierarchyLvl HierarchyLvlId="275" HierarchyLvlTypeId="4" Intrnl_Id="8" Name="RegistrationTest">
+<Header>
+<Loc EndOffset="897" SrcFileId="1" StartOffset="761"/>
+</Header>
+<LocList>
+<Loc EndOffset="28638" SrcFileId="1" StartOffset="761"/>
+</LocList>
+<StmntSeq Intrnl_Id="9">
+<LocList>
+<Loc EndOffset="957" SrcFileId="1" StartOffset="903"/>
+<Loc EndOffset="1028" SrcFileId="1" StartOffset="960"/>
+<Loc EndOffset="1102" SrcFileId="1" StartOffset="1031"/>
+<Loc EndOffset="1190" SrcFileId="1" StartOffset="1143"/>
+<Loc EndOffset="1315" SrcFileId="1" StartOffset="1270"/>
+<Loc EndOffset="1361" SrcFileId="1" StartOffset="1318"/>
+<Loc EndOffset="1420" SrcFileId="1" StartOffset="1367"/>
+<Loc EndOffset="1761" SrcFileId="1" StartOffset="1596"/>
+<Loc EndOffset="1892" SrcFileId="1" StartOffset="1814"/>
+<Loc EndOffset="1957" SrcFileId="1" StartOffset="1938"/>
+<Loc EndOffset="1983" SrcFileId="1" StartOffset="1960"/>
+<Loc EndOffset="2008" SrcFileId="1" StartOffset="1986"/>
+<Loc EndOffset="2031" SrcFileId="1" StartOffset="2011"/>
+<Loc EndOffset="2060" SrcFileId="1" StartOffset="2034"/>
+<Loc EndOffset="2083" SrcFileId="1" StartOffset="2063"/>
+<Loc EndOffset="2109" SrcFileId="1" StartOffset="2086"/>
+<Loc EndOffset="2149" SrcFileId="1" StartOffset="2112"/>
+<Loc EndOffset="2178" SrcFileId="1" StartOffset="2152"/>
+<Loc EndOffset="2202" SrcFileId="1" StartOffset="2181"/>
+<Loc EndOffset="2238" SrcFileId="1" StartOffset="2205"/>
+</LocList>
+<BasicStmnt CovItemId="S1" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="10">
+<LocList>
+<Loc EndOffset="957" SrcFileId="1" StartOffset="903"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S2" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="11">
+<LocList>
+<Loc EndOffset="1028" SrcFileId="1" StartOffset="960"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S3" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="12">
+<LocList>
+<Loc EndOffset="1102" SrcFileId="1" StartOffset="1031"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S4" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="13">
+<LocList>
+<Loc EndOffset="1190" SrcFileId="1" StartOffset="1143"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S5" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="14">
+<LocList>
+<Loc EndOffset="1315" SrcFileId="1" StartOffset="1270"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S6" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="15">
+<LocList>
+<Loc EndOffset="1361" SrcFileId="1" StartOffset="1318"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S7" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="16">
+<LocList>
+<Loc EndOffset="1420" SrcFileId="1" StartOffset="1367"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S8" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="17">
+<LocList>
+<Loc EndOffset="1761" SrcFileId="1" StartOffset="1596"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S9" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="18">
+<LocList>
+<Loc EndOffset="1892" SrcFileId="1" StartOffset="1814"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S10" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="19">
+<LocList>
+<Loc EndOffset="1957" SrcFileId="1" StartOffset="1938"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S11" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="20">
+<LocList>
+<Loc EndOffset="1983" SrcFileId="1" StartOffset="1960"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S12" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="21">
+<LocList>
+<Loc EndOffset="2008" SrcFileId="1" StartOffset="1986"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S13" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="22">
+<LocList>
+<Loc EndOffset="2031" SrcFileId="1" StartOffset="2011"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S14" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="23">
+<LocList>
+<Loc EndOffset="2060" SrcFileId="1" StartOffset="2034"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S15" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="24">
+<LocList>
+<Loc EndOffset="2083" SrcFileId="1" StartOffset="2063"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S16" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="25">
+<LocList>
+<Loc EndOffset="2109" SrcFileId="1" StartOffset="2086"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S17" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="26">
+<LocList>
+<Loc EndOffset="2149" SrcFileId="1" StartOffset="2112"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S18" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="27">
+<LocList>
+<Loc EndOffset="2178" SrcFileId="1" StartOffset="2152"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S19" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="28">
+<LocList>
+<Loc EndOffset="2202" SrcFileId="1" StartOffset="2181"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S20" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="29">
+<LocList>
+<Loc EndOffset="2238" SrcFileId="1" StartOffset="2205"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+<HierarchyLvl HierarchyLvlId="253" HierarchyLvlTypeId="3" Intrnl_Id="30" Name="setUp">
+<Header>
+<Loc EndOffset="2290" SrcFileId="1" StartOffset="2244"/>
+</Header>
+<LocList>
+<Loc EndOffset="3088" SrcFileId="1" StartOffset="2244"/>
+</LocList>
+<StmntSeq Intrnl_Id="31">
+<LocList>
+<Loc EndOffset="2347" SrcFileId="1" StartOffset="2296"/>
+<Loc EndOffset="2401" SrcFileId="1" StartOffset="2355"/>
+<Loc EndOffset="2456" SrcFileId="1" StartOffset="2409"/>
+<Loc EndOffset="2514" SrcFileId="1" StartOffset="2464"/>
+<Loc EndOffset="2572" SrcFileId="1" StartOffset="2518"/>
+<Loc EndOffset="2630" SrcFileId="1" StartOffset="2576"/>
+<Loc EndOffset="2684" SrcFileId="1" StartOffset="2634"/>
+<Loc EndOffset="2738" SrcFileId="1" StartOffset="2688"/>
+<Loc EndOffset="2792" SrcFileId="1" StartOffset="2742"/>
+<Loc EndOffset="2854" SrcFileId="1" StartOffset="2796"/>
+<Loc EndOffset="2912" SrcFileId="1" StartOffset="2858"/>
+<Loc EndOffset="2968" SrcFileId="1" StartOffset="2916"/>
+<Loc EndOffset="3026" SrcFileId="1" StartOffset="2972"/>
+<Loc EndOffset="3084" SrcFileId="1" StartOffset="3030"/>
+</LocList>
+<BasicStmnt CovItemId="S21" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="32">
+<LocList>
+<Loc EndOffset="2347" SrcFileId="1" StartOffset="2296"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S22" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="33">
+<LocList>
+<Loc EndOffset="2401" SrcFileId="1" StartOffset="2355"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S23" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="34">
+<LocList>
+<Loc EndOffset="2456" SrcFileId="1" StartOffset="2409"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S24" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="35">
+<LocList>
+<Loc EndOffset="2514" SrcFileId="1" StartOffset="2464"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S25" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="36">
+<LocList>
+<Loc EndOffset="2572" SrcFileId="1" StartOffset="2518"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S26" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="37">
+<LocList>
+<Loc EndOffset="2630" SrcFileId="1" StartOffset="2576"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S27" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="38">
+<LocList>
+<Loc EndOffset="2684" SrcFileId="1" StartOffset="2634"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S28" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="39">
+<LocList>
+<Loc EndOffset="2738" SrcFileId="1" StartOffset="2688"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S29" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="40">
+<LocList>
+<Loc EndOffset="2792" SrcFileId="1" StartOffset="2742"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S30" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="41">
+<LocList>
+<Loc EndOffset="2854" SrcFileId="1" StartOffset="2796"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S31" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="42">
+<LocList>
+<Loc EndOffset="2912" SrcFileId="1" StartOffset="2858"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S32" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="43">
+<LocList>
+<Loc EndOffset="2968" SrcFileId="1" StartOffset="2916"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S33" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="44">
+<LocList>
+<Loc EndOffset="3026" SrcFileId="1" StartOffset="2972"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S34" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="45">
+<LocList>
+<Loc EndOffset="3084" SrcFileId="1" StartOffset="3030"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="254" HierarchyLvlTypeId="3" Intrnl_Id="46" Name="PMS_UT_001_Registration_001">
+<Header>
+<Loc EndOffset="3426" SrcFileId="1" StartOffset="3360"/>
+</Header>
+<LocList>
+<Loc EndOffset="4017" SrcFileId="1" StartOffset="3360"/>
+</LocList>
+<StmntSeq Intrnl_Id="47">
+<LocList>
+<Loc EndOffset="3573" SrcFileId="1" StartOffset="3488"/>
+<Loc EndOffset="3778" SrcFileId="1" StartOffset="3649"/>
+<Loc EndOffset="3865" SrcFileId="1" StartOffset="3827"/>
+<Loc EndOffset="3949" SrcFileId="1" StartOffset="3910"/>
+<Loc EndOffset="4013" SrcFileId="1" StartOffset="3957"/>
+</LocList>
+<BasicStmnt CovItemId="S35" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="48">
+<LocList>
+<Loc EndOffset="3573" SrcFileId="1" StartOffset="3488"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S36" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="49">
+<LocList>
+<Loc EndOffset="3778" SrcFileId="1" StartOffset="3649"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S37" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="50">
+<LocList>
+<Loc EndOffset="3865" SrcFileId="1" StartOffset="3827"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S38" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="51">
+<LocList>
+<Loc EndOffset="3949" SrcFileId="1" StartOffset="3910"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S39" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="52">
+<LocList>
+<Loc EndOffset="4013" SrcFileId="1" StartOffset="3957"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="255" HierarchyLvlTypeId="3" Intrnl_Id="53" Name="PMS_UT_002_Registration_002">
+<Header>
+<Loc EndOffset="4340" SrcFileId="1" StartOffset="4274"/>
+</Header>
+<LocList>
+<Loc EndOffset="4952" SrcFileId="1" StartOffset="4274"/>
+</LocList>
+<StmntSeq Intrnl_Id="54">
+<LocList>
+<Loc EndOffset="4487" SrcFileId="1" StartOffset="4402"/>
+<Loc EndOffset="4687" SrcFileId="1" StartOffset="4561"/>
+<Loc EndOffset="4755" SrcFileId="1" StartOffset="4717"/>
+<Loc EndOffset="4854" SrcFileId="1" StartOffset="4806"/>
+<Loc EndOffset="4948" SrcFileId="1" StartOffset="4896"/>
+</LocList>
+<BasicStmnt CovItemId="S40" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="55">
+<LocList>
+<Loc EndOffset="4487" SrcFileId="1" StartOffset="4402"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S41" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="56">
+<LocList>
+<Loc EndOffset="4687" SrcFileId="1" StartOffset="4561"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S42" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="57">
+<LocList>
+<Loc EndOffset="4755" SrcFileId="1" StartOffset="4717"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S43" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="58">
+<LocList>
+<Loc EndOffset="4854" SrcFileId="1" StartOffset="4806"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S44" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="59">
+<LocList>
+<Loc EndOffset="4948" SrcFileId="1" StartOffset="4896"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="256" HierarchyLvlTypeId="3" Intrnl_Id="60" Name="PMS_UT_003_Registration_003">
+<Header>
+<Loc EndOffset="5500" SrcFileId="1" StartOffset="5442"/>
+</Header>
+<LocList>
+<Loc EndOffset="6070" SrcFileId="1" StartOffset="5442"/>
+</LocList>
+<StmntSeq Intrnl_Id="61">
+<LocList>
+<Loc EndOffset="5654" SrcFileId="1" StartOffset="5570"/>
+<Loc EndOffset="5787" SrcFileId="1" StartOffset="5662"/>
+<Loc EndOffset="5876" SrcFileId="1" StartOffset="5838"/>
+<Loc EndOffset="5960" SrcFileId="1" StartOffset="5921"/>
+<Loc EndOffset="6066" SrcFileId="1" StartOffset="6010"/>
+</LocList>
+<BasicStmnt CovItemId="S45" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="62">
+<LocList>
+<Loc EndOffset="5654" SrcFileId="1" StartOffset="5570"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S46" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="63">
+<LocList>
+<Loc EndOffset="5787" SrcFileId="1" StartOffset="5662"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S47" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="64">
+<LocList>
+<Loc EndOffset="5876" SrcFileId="1" StartOffset="5838"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S48" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="65">
+<LocList>
+<Loc EndOffset="5960" SrcFileId="1" StartOffset="5921"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S49" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="66">
+<LocList>
+<Loc EndOffset="6066" SrcFileId="1" StartOffset="6010"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="257" HierarchyLvlTypeId="3" Intrnl_Id="67" Name="PMS_UT_004_Registration_004">
+<Header>
+<Loc EndOffset="6608" SrcFileId="1" StartOffset="6550"/>
+</Header>
+<LocList>
+<Loc EndOffset="7207" SrcFileId="1" StartOffset="6550"/>
+</LocList>
+<StmntSeq Intrnl_Id="68">
+<LocList>
+<Loc EndOffset="6762" SrcFileId="1" StartOffset="6678"/>
+<Loc EndOffset="6805" SrcFileId="1" StartOffset="6787"/>
+<Loc EndOffset="6891" SrcFileId="1" StartOffset="6841"/>
+<Loc EndOffset="7021" SrcFileId="1" StartOffset="6899"/>
+<Loc EndOffset="7087" SrcFileId="1" StartOffset="7049"/>
+<Loc EndOffset="7143" SrcFileId="1" StartOffset="7095"/>
+<Loc EndOffset="7203" SrcFileId="1" StartOffset="7151"/>
+</LocList>
+<BasicStmnt CovItemId="S50" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="69">
+<LocList>
+<Loc EndOffset="6762" SrcFileId="1" StartOffset="6678"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S51" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="70">
+<LocList>
+<Loc EndOffset="6805" SrcFileId="1" StartOffset="6787"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S52" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="71">
+<LocList>
+<Loc EndOffset="6891" SrcFileId="1" StartOffset="6841"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S53" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="72">
+<LocList>
+<Loc EndOffset="7021" SrcFileId="1" StartOffset="6899"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S54" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="73">
+<LocList>
+<Loc EndOffset="7087" SrcFileId="1" StartOffset="7049"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S55" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="74">
+<LocList>
+<Loc EndOffset="7143" SrcFileId="1" StartOffset="7095"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S56" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="75">
+<LocList>
+<Loc EndOffset="7203" SrcFileId="1" StartOffset="7151"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="258" HierarchyLvlTypeId="3" Intrnl_Id="76" Name="PMS_UT_005_Registration_005">
+<Header>
+<Loc EndOffset="7780" SrcFileId="1" StartOffset="7722"/>
+</Header>
+<LocList>
+<Loc EndOffset="8385" SrcFileId="1" StartOffset="7722"/>
+</LocList>
+<StmntSeq Intrnl_Id="77">
+<LocList>
+<Loc EndOffset="7934" SrcFileId="1" StartOffset="7850"/>
+<Loc EndOffset="7983" SrcFileId="1" StartOffset="7959"/>
+<Loc EndOffset="8069" SrcFileId="1" StartOffset="8019"/>
+<Loc EndOffset="8199" SrcFileId="1" StartOffset="8077"/>
+<Loc EndOffset="8265" SrcFileId="1" StartOffset="8227"/>
+<Loc EndOffset="8321" SrcFileId="1" StartOffset="8273"/>
+<Loc EndOffset="8381" SrcFileId="1" StartOffset="8329"/>
+</LocList>
+<BasicStmnt CovItemId="S57" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="78">
+<LocList>
+<Loc EndOffset="7934" SrcFileId="1" StartOffset="7850"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S58" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="79">
+<LocList>
+<Loc EndOffset="7983" SrcFileId="1" StartOffset="7959"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S59" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="80">
+<LocList>
+<Loc EndOffset="8069" SrcFileId="1" StartOffset="8019"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S60" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="81">
+<LocList>
+<Loc EndOffset="8199" SrcFileId="1" StartOffset="8077"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S61" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="82">
+<LocList>
+<Loc EndOffset="8265" SrcFileId="1" StartOffset="8227"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S62" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="83">
+<LocList>
+<Loc EndOffset="8321" SrcFileId="1" StartOffset="8273"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S63" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="84">
+<LocList>
+<Loc EndOffset="8381" SrcFileId="1" StartOffset="8329"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="259" HierarchyLvlTypeId="3" Intrnl_Id="85" Name="PMS_UT_006_Registration_006">
+<Header>
+<Loc EndOffset="9014" SrcFileId="1" StartOffset="8956"/>
+</Header>
+<LocList>
+<Loc EndOffset="9612" SrcFileId="1" StartOffset="8956"/>
+</LocList>
+<StmntSeq Intrnl_Id="86">
+<LocList>
+<Loc EndOffset="9168" SrcFileId="1" StartOffset="9084"/>
+<Loc EndOffset="9212" SrcFileId="1" StartOffset="9195"/>
+<Loc EndOffset="9296" SrcFileId="1" StartOffset="9246"/>
+<Loc EndOffset="9426" SrcFileId="1" StartOffset="9304"/>
+<Loc EndOffset="9492" SrcFileId="1" StartOffset="9454"/>
+<Loc EndOffset="9548" SrcFileId="1" StartOffset="9500"/>
+<Loc EndOffset="9608" SrcFileId="1" StartOffset="9556"/>
+</LocList>
+<BasicStmnt CovItemId="S64" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="87">
+<LocList>
+<Loc EndOffset="9168" SrcFileId="1" StartOffset="9084"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S65" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="88">
+<LocList>
+<Loc EndOffset="9212" SrcFileId="1" StartOffset="9195"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S66" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="89">
+<LocList>
+<Loc EndOffset="9296" SrcFileId="1" StartOffset="9246"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S67" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="90">
+<LocList>
+<Loc EndOffset="9426" SrcFileId="1" StartOffset="9304"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S68" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="91">
+<LocList>
+<Loc EndOffset="9492" SrcFileId="1" StartOffset="9454"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S69" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="92">
+<LocList>
+<Loc EndOffset="9548" SrcFileId="1" StartOffset="9500"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S70" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="93">
+<LocList>
+<Loc EndOffset="9608" SrcFileId="1" StartOffset="9556"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="260" HierarchyLvlTypeId="3" Intrnl_Id="94" Name="PMS_UT_007_Registration_007">
+<Header>
+<Loc EndOffset="10147" SrcFileId="1" StartOffset="10089"/>
+</Header>
+<LocList>
+<Loc EndOffset="10761" SrcFileId="1" StartOffset="10089"/>
+</LocList>
+<StmntSeq Intrnl_Id="95">
+<LocList>
+<Loc EndOffset="10301" SrcFileId="1" StartOffset="10217"/>
+<Loc EndOffset="10353" SrcFileId="1" StartOffset="10328"/>
+<Loc EndOffset="10445" SrcFileId="1" StartOffset="10391"/>
+<Loc EndOffset="10575" SrcFileId="1" StartOffset="10453"/>
+<Loc EndOffset="10641" SrcFileId="1" StartOffset="10603"/>
+<Loc EndOffset="10697" SrcFileId="1" StartOffset="10649"/>
+<Loc EndOffset="10757" SrcFileId="1" StartOffset="10705"/>
+</LocList>
+<BasicStmnt CovItemId="S71" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="96">
+<LocList>
+<Loc EndOffset="10301" SrcFileId="1" StartOffset="10217"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S72" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="97">
+<LocList>
+<Loc EndOffset="10353" SrcFileId="1" StartOffset="10328"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S73" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="98">
+<LocList>
+<Loc EndOffset="10445" SrcFileId="1" StartOffset="10391"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S74" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="99">
+<LocList>
+<Loc EndOffset="10575" SrcFileId="1" StartOffset="10453"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S75" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="100">
+<LocList>
+<Loc EndOffset="10641" SrcFileId="1" StartOffset="10603"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S76" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="101">
+<LocList>
+<Loc EndOffset="10697" SrcFileId="1" StartOffset="10649"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S77" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="102">
+<LocList>
+<Loc EndOffset="10757" SrcFileId="1" StartOffset="10705"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="261" HierarchyLvlTypeId="3" Intrnl_Id="103" Name="PMS_UT_008_Registration_008">
+<Header>
+<Loc EndOffset="11294" SrcFileId="1" StartOffset="11236"/>
+</Header>
+<LocList>
+<Loc EndOffset="11901" SrcFileId="1" StartOffset="11236"/>
+</LocList>
+<StmntSeq Intrnl_Id="104">
+<LocList>
+<Loc EndOffset="11448" SrcFileId="1" StartOffset="11364"/>
+<Loc EndOffset="11493" SrcFileId="1" StartOffset="11475"/>
+<Loc EndOffset="11585" SrcFileId="1" StartOffset="11531"/>
+<Loc EndOffset="11715" SrcFileId="1" StartOffset="11593"/>
+<Loc EndOffset="11781" SrcFileId="1" StartOffset="11743"/>
+<Loc EndOffset="11837" SrcFileId="1" StartOffset="11789"/>
+<Loc EndOffset="11897" SrcFileId="1" StartOffset="11845"/>
+</LocList>
+<BasicStmnt CovItemId="S78" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="105">
+<LocList>
+<Loc EndOffset="11448" SrcFileId="1" StartOffset="11364"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S79" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="106">
+<LocList>
+<Loc EndOffset="11493" SrcFileId="1" StartOffset="11475"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S80" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="107">
+<LocList>
+<Loc EndOffset="11585" SrcFileId="1" StartOffset="11531"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S81" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="108">
+<LocList>
+<Loc EndOffset="11715" SrcFileId="1" StartOffset="11593"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S82" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="109">
+<LocList>
+<Loc EndOffset="11781" SrcFileId="1" StartOffset="11743"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S83" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="110">
+<LocList>
+<Loc EndOffset="11837" SrcFileId="1" StartOffset="11789"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S84" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="111">
+<LocList>
+<Loc EndOffset="11897" SrcFileId="1" StartOffset="11845"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="262" HierarchyLvlTypeId="3" Intrnl_Id="112" Name="PMS_UT_009_Registration_009">
+<Header>
+<Loc EndOffset="12475" SrcFileId="1" StartOffset="12417"/>
+</Header>
+<LocList>
+<Loc EndOffset="13090" SrcFileId="1" StartOffset="12417"/>
+</LocList>
+<StmntSeq Intrnl_Id="113">
+<LocList>
+<Loc EndOffset="12629" SrcFileId="1" StartOffset="12545"/>
+<Loc EndOffset="12682" SrcFileId="1" StartOffset="12656"/>
+<Loc EndOffset="12774" SrcFileId="1" StartOffset="12720"/>
+<Loc EndOffset="12904" SrcFileId="1" StartOffset="12782"/>
+<Loc EndOffset="12970" SrcFileId="1" StartOffset="12932"/>
+<Loc EndOffset="13026" SrcFileId="1" StartOffset="12978"/>
+<Loc EndOffset="13086" SrcFileId="1" StartOffset="13034"/>
+</LocList>
+<BasicStmnt CovItemId="S85" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="114">
+<LocList>
+<Loc EndOffset="12629" SrcFileId="1" StartOffset="12545"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S86" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="115">
+<LocList>
+<Loc EndOffset="12682" SrcFileId="1" StartOffset="12656"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S87" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="116">
+<LocList>
+<Loc EndOffset="12774" SrcFileId="1" StartOffset="12720"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S88" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="117">
+<LocList>
+<Loc EndOffset="12904" SrcFileId="1" StartOffset="12782"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S89" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="118">
+<LocList>
+<Loc EndOffset="12970" SrcFileId="1" StartOffset="12932"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S90" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="119">
+<LocList>
+<Loc EndOffset="13026" SrcFileId="1" StartOffset="12978"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S91" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="120">
+<LocList>
+<Loc EndOffset="13086" SrcFileId="1" StartOffset="13034"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="263" HierarchyLvlTypeId="3" Intrnl_Id="121" Name="PMS_UT_010_Registration_010">
+<Header>
+<Loc EndOffset="13625" SrcFileId="1" StartOffset="13567"/>
+</Header>
+<LocList>
+<Loc EndOffset="14232" SrcFileId="1" StartOffset="13567"/>
+</LocList>
+<StmntSeq Intrnl_Id="122">
+<LocList>
+<Loc EndOffset="13779" SrcFileId="1" StartOffset="13695"/>
+<Loc EndOffset="13824" SrcFileId="1" StartOffset="13806"/>
+<Loc EndOffset="13916" SrcFileId="1" StartOffset="13862"/>
+<Loc EndOffset="14046" SrcFileId="1" StartOffset="13924"/>
+<Loc EndOffset="14112" SrcFileId="1" StartOffset="14074"/>
+<Loc EndOffset="14168" SrcFileId="1" StartOffset="14120"/>
+<Loc EndOffset="14228" SrcFileId="1" StartOffset="14176"/>
+</LocList>
+<BasicStmnt CovItemId="S92" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="123">
+<LocList>
+<Loc EndOffset="13779" SrcFileId="1" StartOffset="13695"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S93" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="124">
+<LocList>
+<Loc EndOffset="13824" SrcFileId="1" StartOffset="13806"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S94" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="125">
+<LocList>
+<Loc EndOffset="13916" SrcFileId="1" StartOffset="13862"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S95" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="126">
+<LocList>
+<Loc EndOffset="14046" SrcFileId="1" StartOffset="13924"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S96" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="127">
+<LocList>
+<Loc EndOffset="14112" SrcFileId="1" StartOffset="14074"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S97" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="128">
+<LocList>
+<Loc EndOffset="14168" SrcFileId="1" StartOffset="14120"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S98" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="129">
+<LocList>
+<Loc EndOffset="14228" SrcFileId="1" StartOffset="14176"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="264" HierarchyLvlTypeId="3" Intrnl_Id="130" Name="PMS_UT_011_Registration_011">
+<Header>
+<Loc EndOffset="14808" SrcFileId="1" StartOffset="14750"/>
+</Header>
+<LocList>
+<Loc EndOffset="15423" SrcFileId="1" StartOffset="14750"/>
+</LocList>
+<StmntSeq Intrnl_Id="131">
+<LocList>
+<Loc EndOffset="14962" SrcFileId="1" StartOffset="14878"/>
+<Loc EndOffset="15015" SrcFileId="1" StartOffset="14989"/>
+<Loc EndOffset="15107" SrcFileId="1" StartOffset="15053"/>
+<Loc EndOffset="15237" SrcFileId="1" StartOffset="15115"/>
+<Loc EndOffset="15303" SrcFileId="1" StartOffset="15265"/>
+<Loc EndOffset="15359" SrcFileId="1" StartOffset="15311"/>
+<Loc EndOffset="15419" SrcFileId="1" StartOffset="15367"/>
+</LocList>
+<BasicStmnt CovItemId="S99" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="132">
+<LocList>
+<Loc EndOffset="14962" SrcFileId="1" StartOffset="14878"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S100" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="133">
+<LocList>
+<Loc EndOffset="15015" SrcFileId="1" StartOffset="14989"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S101" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="134">
+<LocList>
+<Loc EndOffset="15107" SrcFileId="1" StartOffset="15053"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S102" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="135">
+<LocList>
+<Loc EndOffset="15237" SrcFileId="1" StartOffset="15115"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S103" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="136">
+<LocList>
+<Loc EndOffset="15303" SrcFileId="1" StartOffset="15265"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S104" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="137">
+<LocList>
+<Loc EndOffset="15359" SrcFileId="1" StartOffset="15311"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S105" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="138">
+<LocList>
+<Loc EndOffset="15419" SrcFileId="1" StartOffset="15367"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="265" HierarchyLvlTypeId="3" Intrnl_Id="139" Name="PMS_UT_012_Registration_012">
+<Header>
+<Loc EndOffset="16104" SrcFileId="1" StartOffset="16046"/>
+</Header>
+<LocList>
+<Loc EndOffset="16889" SrcFileId="1" StartOffset="16046"/>
+</LocList>
+<StmntSeq Intrnl_Id="140">
+<LocList>
+<Loc EndOffset="16258" SrcFileId="1" StartOffset="16174"/>
+<Loc EndOffset="16319" SrcFileId="1" StartOffset="16297"/>
+<Loc EndOffset="16348" SrcFileId="1" StartOffset="16323"/>
+<Loc EndOffset="16440" SrcFileId="1" StartOffset="16386"/>
+<Loc EndOffset="16498" SrcFileId="1" StartOffset="16444"/>
+<Loc EndOffset="16631" SrcFileId="1" StartOffset="16506"/>
+<Loc EndOffset="16697" SrcFileId="1" StartOffset="16659"/>
+<Loc EndOffset="16779" SrcFileId="1" StartOffset="16740"/>
+<Loc EndOffset="16885" SrcFileId="1" StartOffset="16829"/>
+</LocList>
+<BasicStmnt CovItemId="S106" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="141">
+<LocList>
+<Loc EndOffset="16258" SrcFileId="1" StartOffset="16174"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S107" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="142">
+<LocList>
+<Loc EndOffset="16319" SrcFileId="1" StartOffset="16297"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S108" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="143">
+<LocList>
+<Loc EndOffset="16348" SrcFileId="1" StartOffset="16323"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S109" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="144">
+<LocList>
+<Loc EndOffset="16440" SrcFileId="1" StartOffset="16386"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S110" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="145">
+<LocList>
+<Loc EndOffset="16498" SrcFileId="1" StartOffset="16444"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S111" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="146">
+<LocList>
+<Loc EndOffset="16631" SrcFileId="1" StartOffset="16506"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S112" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="147">
+<LocList>
+<Loc EndOffset="16697" SrcFileId="1" StartOffset="16659"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S113" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="148">
+<LocList>
+<Loc EndOffset="16779" SrcFileId="1" StartOffset="16740"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S114" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="149">
+<LocList>
+<Loc EndOffset="16885" SrcFileId="1" StartOffset="16829"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="266" HierarchyLvlTypeId="3" Intrnl_Id="150" Name="PMS_UT_013_Registration_013">
+<Header>
+<Loc EndOffset="17429" SrcFileId="1" StartOffset="17371"/>
+</Header>
+<LocList>
+<Loc EndOffset="18042" SrcFileId="1" StartOffset="17371"/>
+</LocList>
+<StmntSeq Intrnl_Id="151">
+<LocList>
+<Loc EndOffset="17583" SrcFileId="1" StartOffset="17499"/>
+<Loc EndOffset="17640" SrcFileId="1" StartOffset="17612"/>
+<Loc EndOffset="17726" SrcFileId="1" StartOffset="17676"/>
+<Loc EndOffset="17856" SrcFileId="1" StartOffset="17734"/>
+<Loc EndOffset="17922" SrcFileId="1" StartOffset="17884"/>
+<Loc EndOffset="17978" SrcFileId="1" StartOffset="17930"/>
+<Loc EndOffset="18038" SrcFileId="1" StartOffset="17986"/>
+</LocList>
+<BasicStmnt CovItemId="S115" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="152">
+<LocList>
+<Loc EndOffset="17583" SrcFileId="1" StartOffset="17499"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S116" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="153">
+<LocList>
+<Loc EndOffset="17640" SrcFileId="1" StartOffset="17612"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S117" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="154">
+<LocList>
+<Loc EndOffset="17726" SrcFileId="1" StartOffset="17676"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S118" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="155">
+<LocList>
+<Loc EndOffset="17856" SrcFileId="1" StartOffset="17734"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S119" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="156">
+<LocList>
+<Loc EndOffset="17922" SrcFileId="1" StartOffset="17884"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S120" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="157">
+<LocList>
+<Loc EndOffset="17978" SrcFileId="1" StartOffset="17930"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S121" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="158">
+<LocList>
+<Loc EndOffset="18038" SrcFileId="1" StartOffset="17986"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="267" HierarchyLvlTypeId="3" Intrnl_Id="159" Name="PMS_UT_014_Registration_014">
+<Header>
+<Loc EndOffset="18579" SrcFileId="1" StartOffset="18521"/>
+</Header>
+<LocList>
+<Loc EndOffset="19251" SrcFileId="1" StartOffset="18521"/>
+</LocList>
+<StmntSeq Intrnl_Id="160">
+<LocList>
+<Loc EndOffset="18733" SrcFileId="1" StartOffset="18649"/>
+<Loc EndOffset="18778" SrcFileId="1" StartOffset="18762"/>
+<Loc EndOffset="18860" SrcFileId="1" StartOffset="18810"/>
+<Loc EndOffset="18993" SrcFileId="1" StartOffset="18868"/>
+<Loc EndOffset="19059" SrcFileId="1" StartOffset="19021"/>
+<Loc EndOffset="19141" SrcFileId="1" StartOffset="19102"/>
+<Loc EndOffset="19247" SrcFileId="1" StartOffset="19191"/>
+</LocList>
+<BasicStmnt CovItemId="S122" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="161">
+<LocList>
+<Loc EndOffset="18733" SrcFileId="1" StartOffset="18649"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S123" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="162">
+<LocList>
+<Loc EndOffset="18778" SrcFileId="1" StartOffset="18762"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S124" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="163">
+<LocList>
+<Loc EndOffset="18860" SrcFileId="1" StartOffset="18810"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S125" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="164">
+<LocList>
+<Loc EndOffset="18993" SrcFileId="1" StartOffset="18868"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S126" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="165">
+<LocList>
+<Loc EndOffset="19059" SrcFileId="1" StartOffset="19021"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S127" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="166">
+<LocList>
+<Loc EndOffset="19141" SrcFileId="1" StartOffset="19102"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S128" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="167">
+<LocList>
+<Loc EndOffset="19247" SrcFileId="1" StartOffset="19191"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="268" HierarchyLvlTypeId="3" Intrnl_Id="168" Name="PMS_UT_015_Registration_015">
+<Header>
+<Loc EndOffset="19825" SrcFileId="1" StartOffset="19767"/>
+</Header>
+<LocList>
+<Loc EndOffset="20452" SrcFileId="1" StartOffset="19767"/>
+</LocList>
+<StmntSeq Intrnl_Id="169">
+<LocList>
+<Loc EndOffset="19979" SrcFileId="1" StartOffset="19895"/>
+<Loc EndOffset="20038" SrcFileId="1" StartOffset="20008"/>
+<Loc EndOffset="20136" SrcFileId="1" StartOffset="20078"/>
+<Loc EndOffset="20266" SrcFileId="1" StartOffset="20144"/>
+<Loc EndOffset="20332" SrcFileId="1" StartOffset="20294"/>
+<Loc EndOffset="20388" SrcFileId="1" StartOffset="20340"/>
+<Loc EndOffset="20448" SrcFileId="1" StartOffset="20396"/>
+</LocList>
+<BasicStmnt CovItemId="S129" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="170">
+<LocList>
+<Loc EndOffset="19979" SrcFileId="1" StartOffset="19895"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S130" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="171">
+<LocList>
+<Loc EndOffset="20038" SrcFileId="1" StartOffset="20008"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S131" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="172">
+<LocList>
+<Loc EndOffset="20136" SrcFileId="1" StartOffset="20078"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S132" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="173">
+<LocList>
+<Loc EndOffset="20266" SrcFileId="1" StartOffset="20144"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S133" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="174">
+<LocList>
+<Loc EndOffset="20332" SrcFileId="1" StartOffset="20294"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S134" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="175">
+<LocList>
+<Loc EndOffset="20388" SrcFileId="1" StartOffset="20340"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S135" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="176">
+<LocList>
+<Loc EndOffset="20448" SrcFileId="1" StartOffset="20396"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="269" HierarchyLvlTypeId="3" Intrnl_Id="177" Name="PMS_UT_016_Registration_016">
+<Header>
+<Loc EndOffset="20990" SrcFileId="1" StartOffset="20932"/>
+</Header>
+<LocList>
+<Loc EndOffset="21608" SrcFileId="1" StartOffset="20932"/>
+</LocList>
+<StmntSeq Intrnl_Id="178">
+<LocList>
+<Loc EndOffset="21144" SrcFileId="1" StartOffset="21060"/>
+<Loc EndOffset="21200" SrcFileId="1" StartOffset="21171"/>
+<Loc EndOffset="21292" SrcFileId="1" StartOffset="21238"/>
+<Loc EndOffset="21422" SrcFileId="1" StartOffset="21300"/>
+<Loc EndOffset="21488" SrcFileId="1" StartOffset="21450"/>
+<Loc EndOffset="21544" SrcFileId="1" StartOffset="21496"/>
+<Loc EndOffset="21604" SrcFileId="1" StartOffset="21552"/>
+</LocList>
+<BasicStmnt CovItemId="S136" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="179">
+<LocList>
+<Loc EndOffset="21144" SrcFileId="1" StartOffset="21060"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S137" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="180">
+<LocList>
+<Loc EndOffset="21200" SrcFileId="1" StartOffset="21171"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S138" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="181">
+<LocList>
+<Loc EndOffset="21292" SrcFileId="1" StartOffset="21238"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S139" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="182">
+<LocList>
+<Loc EndOffset="21422" SrcFileId="1" StartOffset="21300"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S140" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="183">
+<LocList>
+<Loc EndOffset="21488" SrcFileId="1" StartOffset="21450"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S141" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="184">
+<LocList>
+<Loc EndOffset="21544" SrcFileId="1" StartOffset="21496"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S142" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="185">
+<LocList>
+<Loc EndOffset="21604" SrcFileId="1" StartOffset="21552"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="270" HierarchyLvlTypeId="3" Intrnl_Id="186" Name="PMS_UT_017_Registration_017">
+<Header>
+<Loc EndOffset="22138" SrcFileId="1" StartOffset="22080"/>
+</Header>
+<LocList>
+<Loc EndOffset="22747" SrcFileId="1" StartOffset="22080"/>
+</LocList>
+<StmntSeq Intrnl_Id="187">
+<LocList>
+<Loc EndOffset="22292" SrcFileId="1" StartOffset="22208"/>
+<Loc EndOffset="22342" SrcFileId="1" StartOffset="22318"/>
+<Loc EndOffset="22431" SrcFileId="1" StartOffset="22379"/>
+<Loc EndOffset="22561" SrcFileId="1" StartOffset="22439"/>
+<Loc EndOffset="22627" SrcFileId="1" StartOffset="22589"/>
+<Loc EndOffset="22683" SrcFileId="1" StartOffset="22635"/>
+<Loc EndOffset="22743" SrcFileId="1" StartOffset="22691"/>
+</LocList>
+<BasicStmnt CovItemId="S143" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="188">
+<LocList>
+<Loc EndOffset="22292" SrcFileId="1" StartOffset="22208"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S144" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="189">
+<LocList>
+<Loc EndOffset="22342" SrcFileId="1" StartOffset="22318"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S145" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="190">
+<LocList>
+<Loc EndOffset="22431" SrcFileId="1" StartOffset="22379"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S146" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="191">
+<LocList>
+<Loc EndOffset="22561" SrcFileId="1" StartOffset="22439"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S147" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="192">
+<LocList>
+<Loc EndOffset="22627" SrcFileId="1" StartOffset="22589"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S148" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="193">
+<LocList>
+<Loc EndOffset="22683" SrcFileId="1" StartOffset="22635"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S149" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="194">
+<LocList>
+<Loc EndOffset="22743" SrcFileId="1" StartOffset="22691"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="271" HierarchyLvlTypeId="3" Intrnl_Id="195" Name="PMS_UT_018_Registration_018">
+<Header>
+<Loc EndOffset="23284" SrcFileId="1" StartOffset="23226"/>
+</Header>
+<LocList>
+<Loc EndOffset="23897" SrcFileId="1" StartOffset="23226"/>
+</LocList>
+<StmntSeq Intrnl_Id="196">
+<LocList>
+<Loc EndOffset="23438" SrcFileId="1" StartOffset="23354"/>
+<Loc EndOffset="23489" SrcFileId="1" StartOffset="23465"/>
+<Loc EndOffset="23581" SrcFileId="1" StartOffset="23527"/>
+<Loc EndOffset="23711" SrcFileId="1" StartOffset="23589"/>
+<Loc EndOffset="23777" SrcFileId="1" StartOffset="23739"/>
+<Loc EndOffset="23833" SrcFileId="1" StartOffset="23785"/>
+<Loc EndOffset="23893" SrcFileId="1" StartOffset="23841"/>
+</LocList>
+<BasicStmnt CovItemId="S150" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="197">
+<LocList>
+<Loc EndOffset="23438" SrcFileId="1" StartOffset="23354"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S151" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="198">
+<LocList>
+<Loc EndOffset="23489" SrcFileId="1" StartOffset="23465"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S152" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="199">
+<LocList>
+<Loc EndOffset="23581" SrcFileId="1" StartOffset="23527"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S153" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="200">
+<LocList>
+<Loc EndOffset="23711" SrcFileId="1" StartOffset="23589"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S154" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="201">
+<LocList>
+<Loc EndOffset="23777" SrcFileId="1" StartOffset="23739"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S155" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="202">
+<LocList>
+<Loc EndOffset="23833" SrcFileId="1" StartOffset="23785"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S156" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="203">
+<LocList>
+<Loc EndOffset="23893" SrcFileId="1" StartOffset="23841"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="272" HierarchyLvlTypeId="3" Intrnl_Id="204" Name="PMS_UT_019_Registration_019">
+<Header>
+<Loc EndOffset="24448" SrcFileId="1" StartOffset="24390"/>
+</Header>
+<LocList>
+<Loc EndOffset="25223" SrcFileId="1" StartOffset="24390"/>
+</LocList>
+<StmntSeq Intrnl_Id="205">
+<LocList>
+<Loc EndOffset="24602" SrcFileId="1" StartOffset="24518"/>
+<Loc EndOffset="24655" SrcFileId="1" StartOffset="24637"/>
+<Loc EndOffset="24677" SrcFileId="1" StartOffset="24659"/>
+<Loc EndOffset="24777" SrcFileId="1" StartOffset="24723"/>
+<Loc EndOffset="24835" SrcFileId="1" StartOffset="24781"/>
+<Loc EndOffset="24965" SrcFileId="1" StartOffset="24843"/>
+<Loc EndOffset="25031" SrcFileId="1" StartOffset="24993"/>
+<Loc EndOffset="25113" SrcFileId="1" StartOffset="25074"/>
+<Loc EndOffset="25219" SrcFileId="1" StartOffset="25163"/>
+</LocList>
+<BasicStmnt CovItemId="S157" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="206">
+<LocList>
+<Loc EndOffset="24602" SrcFileId="1" StartOffset="24518"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S158" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="207">
+<LocList>
+<Loc EndOffset="24655" SrcFileId="1" StartOffset="24637"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S159" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="208">
+<LocList>
+<Loc EndOffset="24677" SrcFileId="1" StartOffset="24659"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S160" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="209">
+<LocList>
+<Loc EndOffset="24777" SrcFileId="1" StartOffset="24723"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S161" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="210">
+<LocList>
+<Loc EndOffset="24835" SrcFileId="1" StartOffset="24781"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S162" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="211">
+<LocList>
+<Loc EndOffset="24965" SrcFileId="1" StartOffset="24843"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S163" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="212">
+<LocList>
+<Loc EndOffset="25031" SrcFileId="1" StartOffset="24993"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S164" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="213">
+<LocList>
+<Loc EndOffset="25113" SrcFileId="1" StartOffset="25074"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S165" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="214">
+<LocList>
+<Loc EndOffset="25219" SrcFileId="1" StartOffset="25163"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="273" HierarchyLvlTypeId="3" Intrnl_Id="215" Name="PMS_UT_020_Registration_020">
+<Header>
+<Loc EndOffset="25793" SrcFileId="1" StartOffset="25735"/>
+</Header>
+<LocList>
+<Loc EndOffset="26499" SrcFileId="1" StartOffset="25735"/>
+</LocList>
+<StmntSeq Intrnl_Id="216">
+<LocList>
+<Loc EndOffset="25947" SrcFileId="1" StartOffset="25863"/>
+<Loc EndOffset="26003" SrcFileId="1" StartOffset="25982"/>
+<Loc EndOffset="26025" SrcFileId="1" StartOffset="26007"/>
+<Loc EndOffset="26125" SrcFileId="1" StartOffset="26071"/>
+<Loc EndOffset="26183" SrcFileId="1" StartOffset="26129"/>
+<Loc EndOffset="26313" SrcFileId="1" StartOffset="26191"/>
+<Loc EndOffset="26379" SrcFileId="1" StartOffset="26341"/>
+<Loc EndOffset="26435" SrcFileId="1" StartOffset="26387"/>
+<Loc EndOffset="26495" SrcFileId="1" StartOffset="26443"/>
+</LocList>
+<BasicStmnt CovItemId="S166" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="217">
+<LocList>
+<Loc EndOffset="25947" SrcFileId="1" StartOffset="25863"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S167" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="218">
+<LocList>
+<Loc EndOffset="26003" SrcFileId="1" StartOffset="25982"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S168" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="219">
+<LocList>
+<Loc EndOffset="26025" SrcFileId="1" StartOffset="26007"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S169" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="220">
+<LocList>
+<Loc EndOffset="26125" SrcFileId="1" StartOffset="26071"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S170" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="221">
+<LocList>
+<Loc EndOffset="26183" SrcFileId="1" StartOffset="26129"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S171" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="222">
+<LocList>
+<Loc EndOffset="26313" SrcFileId="1" StartOffset="26191"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S172" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="223">
+<LocList>
+<Loc EndOffset="26379" SrcFileId="1" StartOffset="26341"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S173" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="224">
+<LocList>
+<Loc EndOffset="26435" SrcFileId="1" StartOffset="26387"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S174" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="225">
+<LocList>
+<Loc EndOffset="26495" SrcFileId="1" StartOffset="26443"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</HierarchyLvl>
+<HierarchyLvl HierarchyLvlId="274" HierarchyLvlTypeId="3" Intrnl_Id="226" Name="PMS_UT_021_Registration_021">
+<Header>
+<Loc EndOffset="27144" SrcFileId="1" StartOffset="27086"/>
+</Header>
+<LocList>
+<Loc EndOffset="28635" SrcFileId="1" StartOffset="27086"/>
+</LocList>
+<StmntSeq Intrnl_Id="227">
+<LocList>
+<Loc EndOffset="27298" SrcFileId="1" StartOffset="27214"/>
+<Loc EndOffset="27355" SrcFileId="1" StartOffset="27338"/>
+<Loc EndOffset="27381" SrcFileId="1" StartOffset="27359"/>
+<Loc EndOffset="27410" SrcFileId="1" StartOffset="27385"/>
+<Loc EndOffset="27432" SrcFileId="1" StartOffset="27414"/>
+<Loc EndOffset="27462" SrcFileId="1" StartOffset="27436"/>
+<Loc EndOffset="27492" SrcFileId="1" StartOffset="27466"/>
+<Loc EndOffset="27517" SrcFileId="1" StartOffset="27496"/>
+<Loc EndOffset="27560" SrcFileId="1" StartOffset="27521"/>
+<Loc EndOffset="27596" SrcFileId="1" StartOffset="27564"/>
+<Loc EndOffset="27619" SrcFileId="1" StartOffset="27600"/>
+<Loc EndOffset="27656" SrcFileId="1" StartOffset="27623"/>
+<Loc EndOffset="27749" SrcFileId="1" StartOffset="27699"/>
+<Loc EndOffset="27807" SrcFileId="1" StartOffset="27753"/>
+<Loc EndOffset="27865" SrcFileId="1" StartOffset="27811"/>
+<Loc EndOffset="27919" SrcFileId="1" StartOffset="27869"/>
+<Loc EndOffset="27973" SrcFileId="1" StartOffset="27923"/>
+<Loc EndOffset="28027" SrcFileId="1" StartOffset="27977"/>
+<Loc EndOffset="28089" SrcFileId="1" StartOffset="28031"/>
+<Loc EndOffset="28147" SrcFileId="1" StartOffset="28093"/>
+<Loc EndOffset="28203" SrcFileId="1" StartOffset="28151"/>
+<Loc EndOffset="28261" SrcFileId="1" StartOffset="28207"/>
+<Loc EndOffset="28319" SrcFileId="1" StartOffset="28265"/>
+<Loc EndOffset="28449" SrcFileId="1" StartOffset="28327"/>
+<Loc EndOffset="28515" SrcFileId="1" StartOffset="28477"/>
+<Loc EndOffset="28571" SrcFileId="1" StartOffset="28523"/>
+<Loc EndOffset="28631" SrcFileId="1" StartOffset="28579"/>
+</LocList>
+<BasicStmnt CovItemId="S175" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="228">
+<LocList>
+<Loc EndOffset="27298" SrcFileId="1" StartOffset="27214"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S176" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="229">
+<LocList>
+<Loc EndOffset="27355" SrcFileId="1" StartOffset="27338"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S177" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="230">
+<LocList>
+<Loc EndOffset="27381" SrcFileId="1" StartOffset="27359"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S178" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="231">
+<LocList>
+<Loc EndOffset="27410" SrcFileId="1" StartOffset="27385"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S179" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="232">
+<LocList>
+<Loc EndOffset="27432" SrcFileId="1" StartOffset="27414"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S180" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="233">
+<LocList>
+<Loc EndOffset="27462" SrcFileId="1" StartOffset="27436"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S181" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="234">
+<LocList>
+<Loc EndOffset="27492" SrcFileId="1" StartOffset="27466"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S182" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="235">
+<LocList>
+<Loc EndOffset="27517" SrcFileId="1" StartOffset="27496"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S183" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="236">
+<LocList>
+<Loc EndOffset="27560" SrcFileId="1" StartOffset="27521"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S184" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="237">
+<LocList>
+<Loc EndOffset="27596" SrcFileId="1" StartOffset="27564"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S185" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="238">
+<LocList>
+<Loc EndOffset="27619" SrcFileId="1" StartOffset="27600"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S186" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="239">
+<LocList>
+<Loc EndOffset="27656" SrcFileId="1" StartOffset="27623"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S187" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="240">
+<LocList>
+<Loc EndOffset="27749" SrcFileId="1" StartOffset="27699"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S188" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="241">
+<LocList>
+<Loc EndOffset="27807" SrcFileId="1" StartOffset="27753"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S189" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="242">
+<LocList>
+<Loc EndOffset="27865" SrcFileId="1" StartOffset="27811"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S190" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="243">
+<LocList>
+<Loc EndOffset="27919" SrcFileId="1" StartOffset="27869"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S191" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="244">
+<LocList>
+<Loc EndOffset="27973" SrcFileId="1" StartOffset="27923"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S192" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="245">
+<LocList>
+<Loc EndOffset="28027" SrcFileId="1" StartOffset="27977"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S193" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="246">
+<LocList>
+<Loc EndOffset="28089" SrcFileId="1" StartOffset="28031"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S194" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="247">
+<LocList>
+<Loc EndOffset="28147" SrcFileId="1" StartOffset="28093"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S195" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="248">
+<LocList>
+<Loc EndOffset="28203" SrcFileId="1" StartOffset="28151"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S196" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="249">
+<LocList>
+<Loc EndOffset="28261" SrcFileId="1" StartOffset="28207"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S197" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="250">
+<LocList>
+<Loc EndOffset="28319" SrcFileId="1" StartOffset="28265"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S198" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="251">
+<LocList>
+<Loc EndOffset="28449" SrcFileId="1" StartOffset="28327"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S199" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="252">
+<LocList>
+<Loc EndOffset="28515" SrcFileId="1" StartOffset="28477"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S200" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="253">
+<LocList>
+<Loc EndOffset="28571" SrcFileId="1" StartOffset="28523"/>
+</LocList>
+</BasicStmnt>
+<BasicStmnt CovItemId="S201" CovItemPrefix="controller.RegistrationTest.java" Intrnl_Id="254">
+<LocList>
+<Loc EndOffset="28631" SrcFileId="1" StartOffset="28579"/>
+</LocList>
+</BasicStmnt>
+</StmntSeq>
+</HierarchyLvl>
+</HierarchyLvl>
+</HierarchyLvl>
+</HierarchyLvl>
+</MASTRoot>
+</TestSessionContainer>
